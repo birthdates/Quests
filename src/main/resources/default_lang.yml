@@ -1,0 +1,13 @@
+en:
+  'items.next-page.name': '&a&lNext Page ->'
+  'items.next-page.lore': '&2Click to view next page'
+  'items.previous-page.name': '&c&l<- Previous Page'
+  'items.previous-page.lore': '&4Click to view previous page'
+  'menus.language-select.title': 'Language Select'
+  'items.language-select.name': '&a&lSelect'
+  'items.language-select.lore': '&2Click to select this language'
+  'menus.language.title': 'Language'
+  'items.language.name': '&a&l%key%'
+  'items.language.lore': '&7%text%'
+  'items.create.name': '&a&lCreate'
+  'items.create.lore': '&2Click to create a new language'

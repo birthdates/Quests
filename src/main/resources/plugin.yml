@@ -1,0 +1,17 @@
+name: Quests
+author: birthdates
+version: 1.0.0
+main: com.birthdates.quests.QuestPlugin
+api-version: 1.17
+commands:
+  quests:
+    description: Quests command
+    aliases: [q]
+  language:
+    description: Language command
+    aliases: [lang]
+
+#permissions:
+#  quests.language:
+#    description: Language menu command
+#    default: false
