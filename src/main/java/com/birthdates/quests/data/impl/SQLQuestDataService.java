@@ -44,17 +44,32 @@ public class SQLQuestDataService extends QuestDataService {
     }
 
     @Override
-    protected void saveProgress(UUID playerId, String questId, BigDecimal amount) {
-        QuestProgress progress = getProgress(playerId, questId);
+    public void deleteProgress(UUID playerId, String questId) {
+        String statement = "DELETE FROM quest_progress WHERE userId = ? AND questId = ?";
+        sql.getExecutor().execute(() -> {
+            try (var connection = sql.getConnection()) {
+                try (var preparedStatement = connection.prepareStatement(statement)) {
+                    preparedStatement.setObject(1, playerId);
+                    preparedStatement.setString(2, questId);
+                    preparedStatement.execute();
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to delete quest progress", e);
+            }
+        });
+    }
+
+    @Override
+    protected void saveProgress(UUID playerId, String questId, QuestProgress progress) {
         String statement = "INSERT INTO quest_progress (userId, questId, value, status) VALUES (?, ?, ?, ?) ON CONFLICT (userId, questId) DO UPDATE SET value = ?, status = ?";
         sql.getExecutor().execute(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
                     preparedStatement.setObject(1, playerId);
                     preparedStatement.setString(2, questId);
-                    preparedStatement.setBigDecimal(3, progress.amount().add(amount));
+                    preparedStatement.setBigDecimal(3, progress.amount());
                     preparedStatement.setInt(4, progress.status().ordinal());
-                    preparedStatement.setBigDecimal(5, progress.amount().add(amount));
+                    preparedStatement.setBigDecimal(5, progress.amount());
                     preparedStatement.setInt(6, progress.status().ordinal());
                     preparedStatement.execute();
                 }

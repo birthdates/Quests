@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Map;
 import java.util.UUID;
@@ -21,8 +22,10 @@ public class InputService implements Listener {
 
     public static CompletableFuture<String> awaitInput(Player player, String message) {
         CompletableFuture<String> future = new CompletableFuture<>();
-        String lang = QuestPlugin.getInstance().getLanguageService().get(message, player);
-        player.sendMessage(LanguageService.color(lang));
+        if (message != null) {
+            String lang = QuestPlugin.getInstance().getLanguageService().get(message, player);
+            player.sendMessage(LanguageService.color(lang));
+        }
         Menu menu = QuestPlugin.getInstance().getMenuService().getMenu(player);
         if (menu != null) {
             QuestPlugin.getInstance().getMenuService().exemptClose(player.getUniqueId());
@@ -31,6 +34,12 @@ public class InputService implements Listener {
         }
         AWAITING_INPUT.put(player.getUniqueId(), future::complete);
         return future;
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        AWAITING_INPUT.remove(event.getPlayer().getUniqueId());
+        IN_MENU.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler

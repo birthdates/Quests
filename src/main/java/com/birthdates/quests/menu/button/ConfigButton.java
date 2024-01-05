@@ -4,6 +4,7 @@ import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.lang.LanguageService;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -12,6 +13,8 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class ConfigButton implements MenuButton {
@@ -19,14 +22,10 @@ public class ConfigButton implements MenuButton {
     protected final String language;
     private final ItemStack itemStack;
     private final ButtonAction action;
+    private final Sound sound;
 
     public ConfigButton(ConfigurationSection section, Player player, ButtonAction action) {
-        itemStack = deserialize(section);
-        this.action = action;
-        this.language = player == null ? null : player.locale().getLanguage();
-        if (language != null) {
-            loadLanguage();
-        }
+        this(section, player == null ? null : player.locale().getLanguage(), action);
     }
 
     public ConfigButton(ConfigurationSection section, String language, ButtonAction action) {
@@ -36,6 +35,7 @@ public class ConfigButton implements MenuButton {
         if (language != null) {
             loadLanguage();
         }
+        sound = section.contains("sound") ? Sound.valueOf(section.getString("sound")) : null;
     }
 
     private static ItemStack deserialize(ConfigurationSection section) {
@@ -56,6 +56,10 @@ public class ConfigButton implements MenuButton {
             if (meta instanceof PotionMeta) {
                 ((org.bukkit.inventory.meta.PotionMeta) meta).setColor(color);
             }
+        }
+        if (section.getBoolean("glow")) {
+            meta.addEnchant(org.bukkit.enchantments.Enchantment.DURABILITY, 1, false);
+            meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         }
         itemStack.setItemMeta(meta);
         return itemStack;
@@ -94,6 +98,28 @@ public class ConfigButton implements MenuButton {
         return this;
     }
 
+    public ConfigButton setPlaceholder(String placeholder, Collection<String> value) {
+        return setPlaceholder(placeholder, value.toArray(new String[0]));
+    }
+
+    public ConfigButton setPlaceholder(String placeholder, String[] value) {
+        var meta = itemStack.getItemMeta();
+        if (meta.hasLore()) {
+            var lore = meta.getLore();
+            var newLore = new ArrayList<String>();
+            for (String str : lore) {
+                if (!str.contains(placeholder)) {
+                    newLore.add(str);
+                    continue;
+                }
+                newLore.addAll(Arrays.asList(value));
+            }
+            meta.setLore(newLore);
+        }
+        itemStack.setItemMeta(meta);
+        return this;
+    }
+
     @Override
     public ItemStack getItem() {
         return itemStack;
@@ -103,6 +129,9 @@ public class ConfigButton implements MenuButton {
     public void onClick(Player player, int slot, ClickType clickType) {
         if (action != null) {
             action.click(player, slot, clickType);
+        }
+        if (sound != null) {
+            player.playSound(player.getLocation(), sound, 0.75f, 1);
         }
     }
 }

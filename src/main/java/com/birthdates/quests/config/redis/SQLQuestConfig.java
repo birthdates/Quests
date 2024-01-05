@@ -9,6 +9,8 @@ import org.bukkit.Material;
 
 import java.math.BigDecimal;
 import java.sql.Array;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,6 +21,27 @@ public class SQLQuestConfig implements QuestConfig {
 
     public SQLQuestConfig(SQLConnection sql) {
         this.sql = sql;
+        loadData();
+    }
+
+    private void loadData() {
+        try (var connection = sql.getConnection()) {
+            try (var preparedStatement = connection.prepareStatement("SELECT * FROM quests")) {
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String id = resultSet.getString("id");
+                        questCache.put(id, loadQuest(id, resultSet));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load quests", e);
+        }
+    }
+
+    @Override
+    public List<Quest> getAllQuests() {
+        return questCache.values().stream().toList();
     }
 
     @Override
@@ -40,7 +63,7 @@ public class SQLQuestConfig implements QuestConfig {
 
     @Override
     public void saveQuest(Quest quest) {
-        String statement = "INSERT INTO quests (id, description, rewards) VALUES (?, ?, ?) ON CONFLICT (id) DO UPDATE SET description = ?, rewards = ?";
+        String statement = "INSERT INTO quests (id, description, rewards, questtype, requiredamount, permission, icon, target) VALUES (?, ?, ?, ?, ? ,? ,? , ?) ON CONFLICT (id) DO UPDATE SET description = ?, rewards = ?, questtype = ?, requiredamount = ?, permission = ?, icon = ?, target = ?";
         sql.getExecutor().execute(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
@@ -48,8 +71,18 @@ public class SQLQuestConfig implements QuestConfig {
                     preparedStatement.setString(1, quest.id());
                     preparedStatement.setString(2, quest.description());
                     preparedStatement.setArray(3, commands);
-                    preparedStatement.setString(4, quest.description());
-                    preparedStatement.setArray(5, commands);
+                    preparedStatement.setInt(4, quest.type().ordinal());
+                    preparedStatement.setBigDecimal(5, quest.requiredAmount());
+                    preparedStatement.setString(6, quest.permission());
+                    preparedStatement.setString(7, quest.icon().name());
+                    preparedStatement.setString(8, quest.target());
+                    preparedStatement.setString(9, quest.description());
+                    preparedStatement.setArray(10, commands);
+                    preparedStatement.setInt(11, quest.type().ordinal());
+                    preparedStatement.setBigDecimal(12, quest.requiredAmount());
+                    preparedStatement.setString(13, quest.permission());
+                    preparedStatement.setString(14, quest.icon().name());
+                    preparedStatement.setString(15, quest.target());
                     preparedStatement.execute();
                 }
             } catch (Exception e) {
@@ -65,6 +98,20 @@ public class SQLQuestConfig implements QuestConfig {
         saveQuest(quest);
     }
 
+    private Quest loadQuest(String id, ResultSet resultSet) throws SQLException {
+        String description = resultSet.getString("description");
+        Array rewards = resultSet.getArray("rewards");
+        List<String> rewardCommands = List.of((String[]) rewards.getArray());
+        BigDecimal requiredAmount = resultSet.getBigDecimal("requiredAmount");
+        QuestType questType = QuestType.values()[resultSet.getInt("questType")];
+        String permission = resultSet.getString("permission");
+        String icon = resultSet.getString("icon");
+        String target = resultSet.getString("target");
+        Quest quest = new Quest(id, Material.valueOf(icon), target, permission, questType, requiredAmount, rewardCommands, description);
+        questCache.put(id, quest);
+        return quest;
+    }
+
     @Override
     public Quest getQuest(String id) {
         Quest cached = questCache.get(id);
@@ -74,17 +121,7 @@ public class SQLQuestConfig implements QuestConfig {
                 preparedStatement.setString(1, id);
                 try (var resultSet = preparedStatement.executeQuery()) {
                     if (!resultSet.next()) return null;
-                    String description = resultSet.getString("description");
-                    Array rewards = resultSet.getArray("rewards");
-                    List<String> rewardCommands = List.of((String[]) rewards.getArray());
-                    BigDecimal requiredAmount = resultSet.getBigDecimal("requiredAmount");
-                    QuestType questType = QuestType.values()[resultSet.getInt("questType")];
-                    String permission = resultSet.getString("permission");
-                    String icon = resultSet.getString("icon");
-                    String target = resultSet.getString("target");
-                    Quest quest = new Quest(id, Material.valueOf(icon), target, permission, questType, requiredAmount, rewardCommands, description);
-                    questCache.put(id, quest);
-                    return quest;
+                    return loadQuest(id, resultSet);
                 }
             }
         } catch (Exception e) {

@@ -24,13 +24,16 @@ public class UpdateListener {
         jedisPool = new JedisPool(redisConfig.getString("Host"), redisConfig.getInt("Port"));
         this.pubSub = new JedisPubSub() {
             @Override
-            public void onMessage(String channel, String key) {
-                if (channel.equals("QUEST_CONFIG")) {
-                    config.invalidate(key);
-                    config.getQuest(key);
+            public void onMessage(String channel, String value) {
+                String[] split = value.split("\\$");
+                String key = split[0];
+                value = split[1];
+                if (key.equals("QUEST_CONFIG")) {
+                    config.invalidate(value);
+                    config.getQuest(value);
                     return;
                 }
-                languageService.update(channel, key);
+                languageService.update(key, value);
             }
         };
 
@@ -38,7 +41,7 @@ public class UpdateListener {
 
         new Thread(() -> {
             try {
-                getJedis().subscribe(pubSub, "quests");
+                getJedis().subscribe(pubSub, "QUEST_UPDATE");
             } catch (JedisConnectionException ignored) {
                 // Thrown when the connection is closed (e.g. server shutdown)
             }
@@ -59,7 +62,7 @@ public class UpdateListener {
     }
 
     public void sendUpdate(String channel, String key) {
-        jedis.publish(channel, key);
+        jedis.publish("QUEST_UPDATE", channel + "$" + key);
     }
 
     public void unload() {

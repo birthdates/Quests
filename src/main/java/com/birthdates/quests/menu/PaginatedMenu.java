@@ -6,15 +6,15 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.concurrent.TimeUnit;
 
 public abstract class PaginatedMenu extends Menu {
-    private final List<Integer> slots = config.getIntegerList("slots");
-    private final MenuService menuService;
+    private final List<Integer> slots;
     private int page;
 
     public PaginatedMenu(String path, MenuService menuService) {
         super(path, menuService);
-        this.menuService = menuService;
+        slots = config.getIntegerList("slots");
     }
 
     @Override
@@ -40,6 +40,9 @@ public abstract class PaginatedMenu extends Menu {
 
     @Override
     public int getRows(NavigableMap<Integer, ?> buttons) {
+        if (slots.isEmpty()) {
+            return 9;
+        }
         return getInventorySize(slots.get(slots.size() - 1));
     }
 
@@ -59,6 +62,7 @@ public abstract class PaginatedMenu extends Menu {
 
     public void goBackPage(Player player) {
         if (page < 1) {
+            setTemporaryButton(player, getBackSlot(), "No-Previous-Page", 3, TimeUnit.SECONDS);
             return;
         }
         page--;
@@ -67,6 +71,7 @@ public abstract class PaginatedMenu extends Menu {
 
     public void goNextPage(Player player) {
         if ((page + 1) >= getMaxPage()) {
+            setTemporaryButton(player, getNextSlot(), "No-Next-Page", 3, TimeUnit.SECONDS);
             return;
         }
         page++;

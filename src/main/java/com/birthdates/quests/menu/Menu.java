@@ -8,35 +8,69 @@ import com.birthdates.quests.menu.button.MenuButton;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public abstract class Menu {
 
     private static final ItemStack BORDER_ITEM = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
     protected final ConfigurationSection config;
     protected final NavigableMap<Integer, MenuButton> buttons = new TreeMap<>();
+    protected final MenuService menuService;
+    private final Map<Integer, TemporaryButton> temporaryButtons = new HashMap<>();
     protected Inventory inventory;
     private Menu closeMenu;
 
-    public Menu(String path, YamlConfiguration menuConfig) {
-        config = menuConfig.getConfigurationSection(path);
-    }
-
     public Menu(String path, MenuService menuService) {
-        this(path, menuService.getMenuConfig());
+        config = menuService.getMenuConfig().getConfigurationSection(path);
+        this.menuService = menuService;
     }
 
     protected static int getInventorySize(int max) {
         if (max <= 0) return 9;
         int quotient = (int) Math.ceil(max / 9.0);
         return quotient > 5 ? 54 : quotient * 9;
+    }
+
+    protected boolean checkTemporaryButtons() {
+        long now = System.currentTimeMillis();
+        boolean changed = temporaryButtons.entrySet().removeIf(entry -> {
+            if (entry.getValue().expiry() < now) {
+                entry.getValue().future().complete(null);
+                return true;
+            }
+            return false;
+        });
+        if (changed) {
+            refresh();
+        }
+        return temporaryButtons.isEmpty();
+    }
+
+    private void refresh() {
+        for (HumanEntity viewer : inventory.getViewers()) {
+            if (viewer instanceof Player) {
+                refresh((Player) viewer);
+            }
+        }
+    }
+
+    public CompletableFuture<Void> setTemporaryButton(Player player, int slot, String path, long expiry, TimeUnit unit) {
+        return setTemporaryButton(slot, new ConfigButton(menuService.getMenuConfig().getConfigurationSection("Temporary-Buttons." + path), player, null), expiry, unit);
+    }
+
+    public CompletableFuture<Void> setTemporaryButton(int slot, MenuButton newButton, long expiry, TimeUnit unit) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        temporaryButtons.put(slot, new TemporaryButton(System.currentTimeMillis() + unit.toMillis(expiry), newButton, future));
+        refresh();
+        menuService.markForUpdate(this);
+        return future;
     }
 
     private void fillBorder() {
@@ -75,6 +109,7 @@ public abstract class Menu {
             player.openInventory(inventory);
         }
         buttons.forEach((slot, button) -> inventory.setItem(slot, button.getItem()));
+        temporaryButtons.forEach((slot, button) -> inventory.setItem(slot, button.tempButton().getItem()));
         if (clearInventory) {
             fillBorder();
         }
@@ -88,9 +123,14 @@ public abstract class Menu {
         Set<String> items = section.getKeys(false);
         String language = player == null ? null : player.locale().getLanguage();
         for (String item : items) {
-            MenuButton button = new ConfigButton(section.getConfigurationSection(item), language, getAction(item));
+            ConfigButton button = new ConfigButton(section.getConfigurationSection(item), language, getAction(item));
+            editConfigButton(player, item, button);
             buttons.put(section.getInt(item + ".slot"), button);
         }
+    }
+
+    protected void editConfigButton(Player player, String path, ConfigButton button) {
+
     }
 
     public ButtonAction getAction(String buttonPath) {
@@ -102,7 +142,7 @@ public abstract class Menu {
     }
 
     public int getSlots() {
-        return Math.min(config.getInt("rows", getRows(buttons)), 54);
+        return Math.min(config.getInt("size", getRows(buttons)), 54);
     }
 
     public int getRows(NavigableMap<Integer, ?> buttons) {
@@ -119,5 +159,8 @@ public abstract class Menu {
 
     public void setCloseMenu(Menu closeMenu) {
         this.closeMenu = closeMenu;
+    }
+
+    private record TemporaryButton(long expiry, MenuButton tempButton, CompletableFuture<Void> future) {
     }
 }

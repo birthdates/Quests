@@ -7,18 +7,19 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class SQLConnection {
 
     private final HikariDataSource hikari;
-    private final Executor executor = Executors.newSingleThreadExecutor();
+    private final Executor executor;
 
-    public SQLConnection(ConfigurationSection config) {
+    public SQLConnection(Logger logger, ConfigurationSection config) {
         if (config == null) {
             throw new IllegalStateException("Expected sql section in config, not found");
         }
 
+        executor = new SQLExecutor(logger);
         HikariConfig hikariConfig = new HikariConfig();
         String server = config.getString("Host");
         int port = config.getInt("Port");
@@ -65,7 +66,7 @@ public class SQLConnection {
                 """;
         String languageTable = """
                 CREATE TABLE IF NOT EXISTS language (
-                	key VARCHAR(32),
+                	key VARCHAR(48),
                 	text TEXT,
                 	language VARCHAR(8),
                 	PRIMARY KEY (key, language)

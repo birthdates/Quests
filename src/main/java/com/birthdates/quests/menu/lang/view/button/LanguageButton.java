@@ -25,12 +25,13 @@ public class LanguageButton extends ConfigButton {
 
     @Override
     public void onClick(Player player, int slot, ClickType clickType) {
+        super.onClick(player, slot, clickType);
         switch (clickType) {
             case MIDDLE -> {
                 languageService.delete(key, parent.getLanguage());
                 parent.refresh(player, true);
             }
-            case LEFT -> InputService.awaitInput(player, "messages.language.update-entry").thenAccept(text -> {
+            case LEFT -> InputService.awaitInput(player, "messages.language.create-entry-value").thenAccept(text -> {
                 languageService.set(key, text, parent.getLanguage());
                 parent.refresh(player, true);
             });

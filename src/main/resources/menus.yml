@@ -1,43 +1,179 @@
 Format:
   Next-Page:
     item: TIPPED_ARROW
-    name: "items.next-page.name"#"&a&lNext Page ->"
+    name: "items.next-page.name"
     lore:
-      - "items.next-page.lore"#"&2Click to view next page"
+      - "items.next-page.lore"
     color: "#76ff03"
   Previous-Page:
     item: TIPPED_ARROW
-    name: "items.previous-page.name"#"&c&l<- Previous Page"
+    name: "items.previous-page.name"
     lore:
-      - "items.previous-page.lore"#&4Click to view previous page"
+      - "items.previous-page.lore"
     color: "#d50000"
+
+Temporary-Buttons:
+  No-Previous-Page:
+    item: BARRIER
+    name: "items.no-previous-page.name"
+    lore:
+      - "items.no-previous-page.lore"
+  No-Next-Page:
+    item: BARRIER
+    name: "items.no-next-page.name"
+    lore:
+      - "items.no-next-page.lore"
+  Quest-Cancelled:
+    item: RED_STAINED_GLASS_PANE
+    name: "items.quest-cancelled.name"
+    lore:
+      - "items.quest-cancelled.lore"
+  Quest-Activated:
+    item: LIME_STAINED_GLASS_PANE
+    name: "items.quest-activated.name"
+    lore:
+      - "items.quest-activated.lore"
+  Quest_Not_Active:
+    item: RED_STAINED_GLASS_PANE
+    name: "items.quest-not-active.name"
+    lore:
+      - "items.quest-not-active.lore"
+  Quest_Already_Completed:
+    item: BARRIER
+    name: "items.quest-already-completed.name"
+    lore:
+      - "items.quest-already-completed.lore"
+  No_Quest_Permission:
+    item: BARRIER
+    name: "items.no-quest-permission.name"
+    lore:
+      - "items.no-quest-permission.lore"
+  Max_Quests_Active:
+    item: BARRIER
+    name: "items.max-quests-active.name"
+    lore:
+      - "items.max-quests-active.lore"
 
 LanguageSelectMenu:
   title: "menus.language-select.title"
   format:
     select:
       item: BOOK
-      name: "items.language-select.name"#"&a&lSelect"
+      name: "items.language-select.name"
       lore:
-          - "items.language-select.lore"#"&2Click to select this language"
+          - "items.language-select.lore"
 
 LanguageMenu:
   title: "menus.language.title"
+  size: 54
   slots: [
-            10, 11, 12, 13, 14, 15, 16,
-            19, 20, 21, 22, 23, 24, 25,
-            28, 29, 30, 31, 32, 33, 34,
-            37, 38, 39, 40, 41, 42, 43
-         ]
+    10, 11, 12, 13, 14, 15, 16,
+    19, 20, 21, 22, 23, 24, 25,
+    28, 29, 30, 31, 32, 33, 34,
+    37, 38, 39, 40, 41, 42, 43
+  ]
   format:
     language:
       item: PAPER
-      name: "items.language.name"#"&a&l%key%"
+      name: "items.language.name"
       lore:
-          - "items.language.lore"#"&7%text%"
+          - "items.language.lore"
   items:
     create:
       item: LIME_STAINED_GLASS_PANE
-      name: "items.create.name"#"&a&lCreate"
+      slot: 4
+      name: "items.create.name"
       lore:
-          - "items.create.lore"#"&2Click to create a new language"
+          - "items.create.lore"
+
+QuestMenu:
+  title: "menus.quest.title"
+  slots: [
+    10, 11, 12, 13, 14, 15, 16,
+    19, 20, 21, 22, 23, 24, 25,
+    28, 29, 30, 31, 32, 33, 34,
+    37, 38, 39, 40, 41, 42, 43
+  ]
+  size: 54
+  format:
+    not_started:
+      item: BARRIER
+      name: "items.not-started.name"
+      lore:
+          - "items.not-started.lore"
+    in_progress:
+      item: LIME_STAINED_GLASS_PANE
+      glow: true
+      name: "items.in-progress.name"
+      lore:
+          - "items.in-progress.lore"
+    completed:
+      item: DIAMOND_BLOCK
+      glow: true
+      name: "items.completed.name"
+      lore:
+          - "items.completed.lore"
+
+QuestAdminMenu:
+  title: "menus.quest.title"
+  slots: [
+    10, 11, 12, 13, 14, 15, 16,
+    19, 20, 21, 22, 23, 24, 25,
+    28, 29, 30, 31, 32, 33, 34,
+    37, 38, 39, 40, 41, 42, 43
+  ]
+  size: 54
+  format:
+    admin:
+      item: PAPER
+      name: "items.admin.name"
+      lore:
+          - "items.admin.lore"
+  items:
+    create:
+      item: LIME_STAINED_GLASS_PANE
+      slot: 4
+      name: "items.create-quest.name"
+      lore:
+          - "items.create-quest.lore"
+
+QuestManageMenu:
+  title: "menus.quest-manage.title"
+  size: 36
+  items:
+    type:
+      slot: 12
+      item: PAPER
+      name: "items.quest-type.name"
+      lore:
+        - "items.quest-type.lore"
+    icon:
+      slot: 13
+      item: LAVA_BUCKET
+      name: "items.quest-icon.name"
+      lore:
+          - "items.quest-icon.lore"
+    description:
+      slot: 14
+      item: BOOK
+      name: "items.quest-description.name"
+      lore:
+          - "items.quest-description.lore"
+    required:
+      slot: 21
+      item: BARRIER
+      name: "items.quest-required.name"
+      lore:
+          - "items.quest-required.lore"
+    target:
+      slot: 22
+      item: BEACON
+      name: "items.quest-target.name"
+      lore:
+          - "items.quest-target.lore"
+    rewards:
+      slot: 23
+      item: DIAMOND
+      name: "items.quest-rewards.name"
+      lore:
+          - "items.quest-rewards.lore"

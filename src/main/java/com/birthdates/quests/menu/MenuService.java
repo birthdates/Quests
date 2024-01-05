@@ -9,16 +9,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 
 public class MenuService implements Listener {
     private final Map<UUID, Menu> inMenu = new HashMap<>();
     private final Set<UUID> exemptClose = new HashSet<>();
+    private final Set<Menu> markedForUpdate = new HashSet<>();
     private final YamlConfiguration menuConfig;
 
-    public MenuService(YamlConfiguration menuConfig) {
+    public MenuService(Plugin plugin, YamlConfiguration menuConfig) {
         this.menuConfig = menuConfig;
+        Bukkit.getScheduler().runTaskTimer(plugin, this::updateMenus, 20L, 20L);
     }
 
     public void openMenu(Player player, Menu menu) {
@@ -28,6 +31,14 @@ public class MenuService implements Listener {
         }
         inMenu.put(player.getUniqueId(), menu);
         menu.open(player);
+    }
+
+    protected void markForUpdate(Menu menu) {
+        markedForUpdate.add(menu);
+    }
+
+    private void updateMenus() {
+        markedForUpdate.removeIf(Menu::checkTemporaryButtons);
     }
 
     public Menu getMenu(Player player) {
@@ -46,6 +57,7 @@ public class MenuService implements Listener {
             return;
         }
         menu.onClosed(player);
+        markedForUpdate.remove(menu);
         inMenu.remove(player.getUniqueId());
         if (menu.getCloseMenu() != null) {
             // Required or will give weird ghost menu.

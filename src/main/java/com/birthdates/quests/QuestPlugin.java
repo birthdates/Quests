@@ -1,6 +1,8 @@
 package com.birthdates.quests;
 
+import co.aikar.commands.PaperCommandManager;
 import com.birthdates.quests.command.LanguageCommand;
+import com.birthdates.quests.command.QuestCommand;
 import com.birthdates.quests.config.QuestConfig;
 import com.birthdates.quests.config.redis.SQLQuestConfig;
 import com.birthdates.quests.data.QuestDataService;
@@ -27,7 +29,6 @@ public class QuestPlugin extends JavaPlugin {
     private QuestDataService dataService;
     private SQLConnection sqlConnection;
     private LanguageService languageService;
-
     private UpdateListener updateListener;
     private MenuService menuService;
 
@@ -39,19 +40,22 @@ public class QuestPlugin extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
-        sqlConnection = new SQLConnection(getConfig().getConfigurationSection("Postgres"));
+        sqlConnection = new SQLConnection(getLogger(), getConfig().getConfigurationSection("Postgres"));
         QuestConfig questConfig = new SQLQuestConfig(sqlConnection);
         languageService = new SQLLanguageService(getConfig("default_lang.yml"), sqlConnection);
         updateListener = new UpdateListener(questConfig, getConfig().getConfigurationSection("Redis"), languageService);
         dataService = new SQLQuestDataService(questConfig, getConfig().getInt("Max-Active-Quests"), sqlConnection);
-        menuService = new MenuService(getConfig("menus.yml"));
+        menuService = new MenuService(this, getConfig("menus.yml"));
 
         Bukkit.getPluginManager().registerEvents(new QuestListener(dataService), this);
         Bukkit.getPluginManager().registerEvents(new InputService(), this);
         Bukkit.getPluginManager().registerEvents(menuService, this);
         Bukkit.getPluginManager().registerEvents(dataService, this);
 
-        getCommand("language").setExecutor(new LanguageCommand(languageService, menuService));
+
+        var cmdManager = new PaperCommandManager(this);
+        cmdManager.registerCommand(new LanguageCommand(languageService, menuService));
+        cmdManager.registerCommand(new QuestCommand(questConfig, languageService, menuService, dataService));
     }
 
     public YamlConfiguration getConfig(String filePath) {
