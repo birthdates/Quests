@@ -6,13 +6,14 @@ import com.birthdates.quests.quest.QuestProgress;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 /**
  * Mock service used for testing.
  */
 public class MockQuestDataService extends QuestDataService {
-    public MockQuestDataService(QuestConfig questConfig, int maxActiveQuests) {
-        super(questConfig, maxActiveQuests);
+    public MockQuestDataService(Logger logger, QuestConfig questConfig, int maxActiveQuests) {
+        super(logger, questConfig, maxActiveQuests);
     }
 
     @Override
@@ -22,11 +23,11 @@ public class MockQuestDataService extends QuestDataService {
 
     @Override
     public void deleteProgress(UUID playerId, String questId) {
-
+        // no-op
     }
 
     @Override
     protected void saveProgress(UUID playerId, String questId, QuestProgress progress) {
-
+        // no-op
     }
 }

@@ -11,13 +11,14 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 public class SQLQuestDataService extends QuestDataService {
 
     private final SQLConnection sql;
 
-    public SQLQuestDataService(QuestConfig questConfig, int maxActiveQuests, SQLConnection sql) {
-        super(questConfig, maxActiveQuests);
+    public SQLQuestDataService(Logger logger, QuestConfig questConfig, int maxActiveQuests, SQLConnection sql) {
+        super(logger, questConfig, maxActiveQuests);
         this.sql = sql;
     }
 

@@ -1,4 +1,4 @@
-package com.birthdates.quests.menu.quest.manage;
+package com.birthdates.quests.menu.quest.edit;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.config.QuestConfig;
@@ -20,12 +20,15 @@ import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
 
-public class QuestManageMenu extends Menu {
+/**
+ * Menu for editing quest settings (for admins)
+ */
+public class QuestEditMenu extends Menu {
     private final String questId;
     private final QuestConfig questConfig;
     private Quest quest;
 
-    public QuestManageMenu(MenuService menuService, Quest quest, QuestConfig questConfig) {
+    public QuestEditMenu(MenuService menuService, Quest quest, QuestConfig questConfig) {
         super("QuestManageMenu", menuService);
         this.questId = quest.id();
         this.questConfig = questConfig;

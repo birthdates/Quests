@@ -17,11 +17,11 @@ import java.util.*;
  * Service to handle menu logic
  */
 public class MenuService implements Listener {
-    private final Map<UUID, Menu> inMenu = new HashMap<>();
     /**
      * Used to prevent the menu from closing when opening a new one
      */
     private final Set<UUID> exemptClose = new HashSet<>();
+    private final Map<UUID, Menu> inMenu = new HashMap<>();
     private final Set<Menu> markedForUpdate = new HashSet<>();
     private final YamlConfiguration menuConfig;
 

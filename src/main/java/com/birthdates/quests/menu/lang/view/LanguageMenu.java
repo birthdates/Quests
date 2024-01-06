@@ -16,6 +16,9 @@ import java.util.List;
 public class LanguageMenu extends PaginatedMenu {
     private final LanguageService languageService;
     private final String language;
+    /**
+     * All available keys for this language
+     */
     private List<String> languageKey;
 
     public LanguageMenu(MenuService menuService, LanguageService languageService, String language) {

@@ -8,8 +8,8 @@ import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.menu.PaginatedMenu;
 import com.birthdates.quests.menu.button.ButtonAction;
 import com.birthdates.quests.menu.button.MenuButton;
+import com.birthdates.quests.menu.quest.edit.QuestEditMenu;
 import com.birthdates.quests.menu.quest.main.button.QuestButton;
-import com.birthdates.quests.menu.quest.manage.QuestManageMenu;
 import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestProgress;
 import com.birthdates.quests.quest.QuestStatus;
@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Menu for both viewing and managing quests (for admins)
+ */
 public class QuestMenu extends PaginatedMenu {
     private final QuestDataService dataService;
     private final QuestConfig questConfig;
@@ -48,7 +51,7 @@ public class QuestMenu extends PaginatedMenu {
     }
 
     private void openAdminMenu(Quest quest, Player player) {
-        menuService.openMenu(player, new QuestManageMenu(menuService, quest, questConfig));
+        menuService.openMenu(player, new QuestEditMenu(menuService, quest, questConfig));
     }
 
     private void createQuest(Player player, String id, String type) {
@@ -69,8 +72,7 @@ public class QuestMenu extends PaginatedMenu {
         InputService.awaitInput(player, "messages.quest.create-admin-id")
                 .thenAccept(id -> {
                     QuestType.showQuestTypes(player);
-                    InputService.awaitInput(player, null).thenAccept(type ->
-                            createQuest(player, id, type));
+                    InputService.awaitInput(player, null).thenAccept(type -> createQuest(player, id, type));
                 });
     }
 
@@ -92,14 +94,17 @@ public class QuestMenu extends PaginatedMenu {
             openAdminMenu(quest, player);
             return;
         }
+
         QuestProgress progress = dataService.getProgress(player.getUniqueId(), quest.id());
         if (progress.status() == QuestStatus.COMPLETED) {
             return;
         }
+
         boolean started = progress.status() == QuestStatus.IN_PROGRESS;
         String error = started ? dataService.cancelQuest(player, quest) : dataService.activateQuest(player, quest);
         if (error == null) {
-            setTemporaryButton(player, slot, started ? "Quest-Cancelled" : "Quest-Activated", 3, TimeUnit.SECONDS).thenRun(() -> refresh(player));
+            setTemporaryButton(player, slot, started ? "Quest-Cancelled" : "Quest-Activated",
+                    3, TimeUnit.SECONDS).thenRun(() -> refresh(player));
             return;
         }
         setTemporaryButton(player, slot, error, 3, TimeUnit.SECONDS);

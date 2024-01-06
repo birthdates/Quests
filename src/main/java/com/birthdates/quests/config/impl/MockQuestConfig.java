@@ -30,7 +30,7 @@ public class MockQuestConfig implements QuestConfig {
 
     @Override
     public void invalidateCache(String id) {
-
+        // no-op
     }
 
     @Override

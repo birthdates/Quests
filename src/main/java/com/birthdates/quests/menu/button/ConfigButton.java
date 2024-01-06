@@ -49,6 +49,7 @@ public class ConfigButton implements MenuButton {
 
     /**
      * Deserialize an {@link ItemStack} from {@link ConfigurationSection}
+     *
      * @param section The section to deserialize from
      * @return The deserialized {@link ItemStack}
      */
@@ -115,7 +116,7 @@ public class ConfigButton implements MenuButton {
      * Replace a placeholder in the {@link ItemStack} (lore, name)
      *
      * @param placeholder The placeholder to replace
-     * @param value The value to replace the placeholder with
+     * @param value       The value to replace the placeholder with
      * @return The {@link ConfigButton} instance (for chaining)
      */
     public ConfigButton setPlaceholder(String placeholder, String value) {
@@ -136,7 +137,7 @@ public class ConfigButton implements MenuButton {
      * Replace a placeholder in the {@link ItemStack} (lore, name)
      *
      * @param placeholder The placeholder to replace
-     * @param value The value to replace the placeholder with
+     * @param value       The value to replace the placeholder with
      * @return The {@link ConfigButton} instance (for chaining)
      */
     public ConfigButton setPlaceholder(String placeholder, Collection<String> value) {
@@ -145,8 +146,9 @@ public class ConfigButton implements MenuButton {
 
     /**
      * Replace a placeholder in the {@link ItemStack} (only lore)
+     *
      * @param placeholder The placeholder to replace
-     * @param values The values to replace the placeholder with (will be added to the lore)
+     * @param values      The values to replace the placeholder with (will be added to the lore)
      * @return The {@link ConfigButton} instance (for chaining)
      */
     public ConfigButton setPlaceholder(String placeholder, String[] values) {
@@ -175,7 +177,7 @@ public class ConfigButton implements MenuButton {
     @Override
     public void onClick(Player player, int slot, ClickType clickType) {
         if (action != null) {
-            action.click(player, slot, clickType);
+            action.onClick(player, slot, clickType);
         }
         if (sound != null) {
             player.playSound(player.getLocation(), sound, 0.75f, 1);

@@ -87,9 +87,9 @@ public class QuestPlugin extends JavaPlugin {
         // Load data service
         int maxActiveQuests = getConfig().getInt("Max-Active-Quests");
         if (testEnvironment) {
-            dataService = new MockQuestDataService(questConfig, maxActiveQuests);
+            dataService = new MockQuestDataService(getLogger(), questConfig, maxActiveQuests);
         } else {
-            dataService = new SQLQuestDataService(questConfig, getConfig().getInt("Max-Active-Quests"), sqlConnection);
+            dataService = new SQLQuestDataService(getLogger(), questConfig, getConfig().getInt("Max-Active-Quests"), sqlConnection);
         }
 
         // Register events and commands

@@ -7,6 +7,7 @@ import com.birthdates.quests.quest.QuestProgress;
 import com.birthdates.quests.quest.QuestStatus;
 import com.birthdates.quests.quest.QuestType;
 import com.birthdates.quests.util.LocaleUtil;
+import com.birthdates.quests.util.VerboseExecutor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,7 +19,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * Service to handle quest data/progress logic
@@ -31,10 +36,11 @@ public abstract class QuestDataService implements Listener {
      * Updates to be saved (user -> updates)
      */
     private final Map<UUID, Map<String, BigDecimal>> progressUpdates = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService service;
     private final int maxActiveQuests;
 
-    public QuestDataService(QuestConfig questConfig, int maxActiveQuests) {
+    public QuestDataService(Logger logger, QuestConfig questConfig, int maxActiveQuests) {
+        this.service = new VerboseExecutor(logger);
         service.scheduleAtFixedRate(this::saveProgress, 0, 5, java.util.concurrent.TimeUnit.SECONDS);
         this.questConfig = questConfig;
         this.maxActiveQuests = maxActiveQuests;

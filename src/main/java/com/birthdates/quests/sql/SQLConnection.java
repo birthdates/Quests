@@ -1,5 +1,6 @@
 package com.birthdates.quests.sql;
 
+import com.birthdates.quests.util.VerboseExecutor;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.ConfigurationSection;
@@ -23,7 +24,7 @@ public class SQLConnection {
         }
 
         // Setup executor and connection pool (create default tables as well)
-        executor = new SQLExecutor(logger);
+        executor = new VerboseExecutor(logger);
         HikariConfig hikariConfig = new HikariConfig();
         String server = config.getString("Host");
         int port = config.getInt("Port");

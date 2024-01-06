@@ -39,6 +39,7 @@ public class MockLanguageService implements LanguageService {
 
     @Override
     public void update(String key, String language) {
+        // no-op
     }
 
     @Override

@@ -63,10 +63,11 @@ public class InputService implements Listener {
         event.setCancelled(true);
         consumer.accept(event.getMessage());
         Menu menu = IN_MENU.remove(uuid);
-
         if (menu == null) {
             return;
         }
+
+        // Menus must be opened on the main thread
         Bukkit.getScheduler().runTask(QuestPlugin.getInstance(), () ->
                 QuestPlugin.getInstance().getMenuService().openMenu(event.getPlayer(), menu));
     }

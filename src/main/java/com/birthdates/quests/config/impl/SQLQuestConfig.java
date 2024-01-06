@@ -63,8 +63,9 @@ public class SQLQuestConfig implements QuestConfig {
 
     @Override
     public void saveQuest(Quest quest) {
-        String statement = "INSERT INTO quests (id, description, rewards, questType, requiredAmount, permission, icon, target, expiry) VALUES (?, ?, ?, ?, ?, ? ,? ,? , ?) ON CONFLICT (id) DO UPDATE SET description = ?, rewards = ?, questtype = ?, requiredamount = ?, permission = ?, icon = ?, target = ?, expiry = ?";
         questCache.put(quest.id(), quest);
+        // FIXME: if this becomes too much, it might be better to have individual statements for each field (i.e setQuestDescription)
+        String statement = "INSERT INTO quests (id, description, rewards, questType, requiredAmount, permission, icon, target, expiry) VALUES (?, ?, ?, ?, ?, ? ,? ,? , ?) ON CONFLICT (id) DO UPDATE SET description = ?, rewards = ?, questtype = ?, requiredamount = ?, permission = ?, icon = ?, target = ?, expiry = ?";
         sql.getExecutor().execute(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {

@@ -20,7 +20,8 @@ public class LanguageButton extends ConfigButton {
         this.parent = parent;
         this.key = key;
 
-        setPlaceholder("%key%", key).setPlaceholder("%text%", LocaleUtil.color(LocaleUtil.truncate(text, 20)));
+        setPlaceholder("%key%", key)
+                .setPlaceholder("%text%", LocaleUtil.color(LocaleUtil.truncate(text, 20)));
     }
 
     @Override
