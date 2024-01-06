@@ -154,7 +154,8 @@ public abstract class QuestDataService implements Listener {
      */
     private void alertActiveQuests(Player player) {
         var activeQuests = userQuestProgress.get(player.getUniqueId());
-        if (activeQuests == null) return;
+        if (activeQuests == null || activeQuests.values().stream().noneMatch(x -> x.status() == QuestStatus.IN_PROGRESS))
+            return;
 
         var languageService = QuestPlugin.getInstance().getLanguageService();
         languageService.display(player, "messages.quest.active-quests");
@@ -162,9 +163,12 @@ public abstract class QuestDataService implements Listener {
             Quest quest = questConfig.getQuest(questId);
             if (quest == null || progress.status() != QuestStatus.IN_PROGRESS) return;
             double percent = progress.amount().divide(quest.requiredAmount(), RoundingMode.HALF_EVEN).doubleValue() * 100.0D;
-            languageService.display(player, "messages.quest.active-quest",
-                    quest.description(), LocaleUtil.formatID(quest.type().name()), LocaleUtil.formatNumber(progress.amount()),
-                    LocaleUtil.formatNumber(quest.requiredAmount()), LocaleUtil.createProgressBar(percent));
+            languageService.display(
+                    player, "messages.quest.active-quest",
+                    quest.description(), LocaleUtil.formatID(quest.type().name()),
+                    LocaleUtil.formatNumber(progress.amount()), LocaleUtil.formatNumber(quest.requiredAmount()),
+                    LocaleUtil.createProgressBar(percent)
+            );
         });
     }
 

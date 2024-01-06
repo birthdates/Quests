@@ -36,4 +36,4 @@ To edit the language, utilize `/language` (requires `quests.admin`)
 ### Quests
 To edit quests utilize `/quests admin` (requires `quests.admin`)
 
-To view quests utilize `/quests` (requires `quests.view`)
+To view quests utilize `/quests`
