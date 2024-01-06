@@ -21,7 +21,7 @@ public class LanguageCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof Player player) || !player.hasPermission("quests.admin")) {
             return false;
         }
         menuService.openMenu(player, new LanguageSelectMenu(menuService, languageService));

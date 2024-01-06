@@ -11,8 +11,6 @@ import java.util.Locale;
  * Simple but useful locale utilities
  */
 public class LocaleUtil {
-
-
     public static String color(String text) {
         return ChatColor.translateAlternateColorCodes('&', text);
     }

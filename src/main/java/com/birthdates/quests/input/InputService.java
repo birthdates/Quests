@@ -36,12 +36,14 @@ public class InputService implements Listener {
             String lang = QuestPlugin.getInstance().getLanguageService().get(message, player);
             player.sendMessage(LocaleUtil.color(lang));
         }
+
         Menu menu = QuestPlugin.getInstance().getMenuService().getMenu(player);
         if (menu != null) {
             QuestPlugin.getInstance().getMenuService().exemptClose(player.getUniqueId());
             player.closeInventory();
             IN_MENU.put(player.getUniqueId(), menu);
         }
+
         AWAITING_INPUT.put(player.getUniqueId(), future::complete);
         return future;
     }
@@ -59,9 +61,11 @@ public class InputService implements Listener {
         if (consumer == null) {
             return;
         }
+
         event.setCancelled(true);
         consumer.accept(event.getMessage());
         Menu menu = IN_MENU.remove(uuid);
+
         if (menu == null) {
             return;
         }
