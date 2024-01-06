@@ -5,9 +5,9 @@ main: com.birthdates.quests.QuestPlugin
 api-version: 1.17
 commands:
   quest:
-    aliases: [quests, q]
+    aliases: [ quests, q ]
   language:
-    aliases: [lang]
+    aliases: [ lang ]
 #permissions:
 #  quests.admin:
 #    description: Language menu command

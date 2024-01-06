@@ -5,6 +5,9 @@ import com.birthdates.quests.quest.QuestType;
 
 import java.util.List;
 
+/**
+ * Handles quest config logic
+ */
 public interface QuestConfig {
 
     void createQuest(String id, QuestType questType);
@@ -13,7 +16,7 @@ public interface QuestConfig {
 
     void saveQuest(Quest quest);
 
-    void invalidate(String id);
+    void invalidateCache(String id);
 
     List<Quest> getAllQuests();
 

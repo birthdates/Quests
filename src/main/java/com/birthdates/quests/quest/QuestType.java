@@ -1,7 +1,7 @@
 package com.birthdates.quests.quest;
 
 import com.birthdates.quests.QuestPlugin;
-import com.birthdates.quests.lang.LanguageService;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.entity.Player;
 
 /**
@@ -20,9 +20,9 @@ public enum QuestType {
      */
     public static void showQuestTypes(Player player) {
         var languageService = QuestPlugin.getInstance().getLanguageService();
-        player.sendMessage(LanguageService.color(languageService.get("messages.quest.create-admin-type", player)));
+        player.sendMessage(LocaleUtil.color(languageService.get("messages.quest.create-admin-type", player)));
         for (QuestType type : QuestType.values()) {
-            player.sendMessage(LanguageService.color("    &a* &f" + type.name()));
+            player.sendMessage(LocaleUtil.color("    &a* &f" + type.name()));
         }
     }
 }

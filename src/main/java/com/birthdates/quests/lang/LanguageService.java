@@ -1,38 +1,26 @@
 package com.birthdates.quests.lang;
 
-import com.birthdates.quests.QuestPlugin;
-import org.bukkit.ChatColor;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+/**
+ * Service to handle language logic
+ */
 public interface LanguageService {
 
-    static String color(String text) {
-        return ChatColor.translateAlternateColorCodes('&', text);
-    }
-
-    static String truncate(String text, int length) {
-        return text.length() > length ? text.substring(0, length) + "..." : text;
-    }
-
-    static String localeToName(String locale) {
-        return new Locale(locale).getDisplayName();
-    }
-
-    static String formatID(String id) {
-        String[] words = id.split("_");
-        StringBuilder formatted = new StringBuilder();
-        for (String word : words) {
-            formatted.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
-        }
-        return formatted.toString().trim();
-    }
-
+    /**
+     * Load the default language from a config
+     *
+     * @param defaultLang Default language config (will have each language as a top-level key)
+     */
     default void loadDefaultLang(YamlConfiguration defaultLang) {
         for (String language : defaultLang.getKeys(false)) {
             for (String key : defaultLang.getConfigurationSection(language).getKeys(true)) {
@@ -44,63 +32,35 @@ public interface LanguageService {
         }
     }
 
-    static String formatExpiry(Player player, long expiry) {
-        if (expiry < 0) {
-            return QuestPlugin.getInstance().getLanguageService().get("messages.never", player);
-        }
-        long seconds = expiry / 1000;
-        long minutes = seconds / 60;
-        long hours = minutes / 60;
-        long days = hours / 24;
-        if (days > 0) {
-            return days + "d";
-        }
-        if (hours > 0) {
-            return hours + "h";
-        }
-        if (minutes > 0) {
-            return minutes + "m";
-        }
-        return seconds + "s";
-    }
-
-    static long parseExpiry(String expiry) {
-        if (expiry.equalsIgnoreCase("perm")) {
-            return -1L;
-        }
-        long time = Long.parseLong(expiry.substring(0, expiry.length() - 1));
-        return switch (expiry.substring(expiry.length() - 1)) {
-            case "d" -> time * 24 * 60 * 60 * 1000;
-            case "h" -> time * 60 * 60 * 1000;
-            case "m" -> time * 60 * 1000;
-            case "s" -> time * 1000;
-            default -> throw new IllegalArgumentException("Invalid expiry format");
-        };
-    }
-
-    static String formatNumber(BigDecimal decimal) {
-        if (decimal.scale() <= 0) {
-            return String.format("%,d", decimal.intValue());
-        }
-        return String.format("%,.2f", decimal);
-    }
-
-    static String createProgressBar(double percent) {
-        StringBuilder builder = new StringBuilder();
-        for (double i = 0; i <= 100; i += 4) {
-            builder.append(i <= percent ? ChatColor.GREEN + "|" : ChatColor.RED + "|");
-        }
-        return builder + " " + ChatColor.GREEN + formatNumber(BigDecimal.valueOf(percent)) + "%";
-    }
-
+    /**
+     * Get a list of formatted strings from a key
+     *
+     * @param key    Language key
+     * @param player Player (will use their language)
+     * @return List of formatted strings
+     */
     default List<String> getList(String key, Player player) {
         return getList(key, player.locale().getLanguage());
     }
 
+    /**
+     * Get a list of formatted strings from a key
+     *
+     * @param key      Language key
+     * @param language Language
+     * @return List of formatted strings
+     */
     default List<String> getList(String key, String language) {
         return List.of(get(key, language).split("\\\\n"));
     }
 
+    /**
+     * Display a formatted language message to a player
+     *
+     * @param player       Player (will use their language)
+     * @param key          Language key
+     * @param replacements Replacements for %s (string formatting, see {@link String#format(String, Object...)})
+     */
     default void display(Player player, String key, Object... replacements) {
         var list = getList(key, player);
         List<String> placeholders = new ArrayList<>(Stream.of(replacements).map(Object::toString).toList());
@@ -109,23 +69,63 @@ public interface LanguageService {
             while (!placeholders.isEmpty() && (index = line.indexOf("%s")) >= 0) {
                 line = line.substring(0, index) + placeholders.remove(0) + line.substring(index + 2);
             }
-            player.sendMessage(color(line));
+            player.sendMessage(LocaleUtil.color(line));
         }
     }
 
+    /**
+     * Get a formatted language string from a key
+     *
+     * @param key    Language key
+     * @param player Player (will use their language)
+     * @return Formatted string
+     */
     default String get(String key, Player player) {
         return get(key, player.locale().getLanguage());
     }
 
+    /**
+     * Get a formatted language string from a key
+     *
+     * @param key      Language key
+     * @param language Language
+     * @return Formatted string
+     */
     String get(String key, String language);
 
+    /**
+     * Set a formatted language string
+     *
+     * @param key      Language key
+     * @param value    Formatted language value
+     * @param language Language (i.e english)
+     * @return {@link CompletableFuture} for when the value is set
+     */
     CompletableFuture<Void> set(String key, String value, String language);
 
+    /**
+     * Delete a language key
+     *
+     * @param key      Language key
+     * @param language Language (i.e english)
+     */
     void delete(String key, String language);
 
+    /**
+     * Update/invalidate a language key (used for cross-server messaging)
+     *
+     * @param key      Language key
+     * @param language Language (i.e english)
+     */
     void update(String key, String language);
 
-    Collection<String> getLanguages();
+    Collection<String> getAvailableLanguages();
 
+    /**
+     * Get map of key -> value for a language
+     *
+     * @param language Language (i.e english)
+     * @return Map of key -> value (i.e "messages.never" -> "Never")
+     */
     Map<String, String> getLanguageMap(String language);
 }

@@ -41,7 +41,7 @@ public class SQLLanguageService implements LanguageService {
     }
 
     @Override
-    public Collection<String> getLanguages() {
+    public Collection<String> getAvailableLanguages() {
         return languageCache.keySet();
     }
 

@@ -7,6 +7,9 @@ import com.birthdates.quests.quest.QuestProgress;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Mock service used for testing.
+ */
 public class MockQuestDataService extends QuestDataService {
     public MockQuestDataService(QuestConfig questConfig, int maxActiveQuests) {
         super(questConfig, maxActiveQuests);

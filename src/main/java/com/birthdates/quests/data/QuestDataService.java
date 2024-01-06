@@ -2,11 +2,11 @@ package com.birthdates.quests.data;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.config.QuestConfig;
-import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestProgress;
 import com.birthdates.quests.quest.QuestStatus;
 import com.birthdates.quests.quest.QuestType;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,10 +20,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
 
+/**
+ * Service to handle quest data/progress logic
+ */
 public abstract class QuestDataService implements Listener {
 
     protected final Map<UUID, Map<String, QuestProgress>> userQuestProgress = new ConcurrentHashMap<>();
     protected final QuestConfig questConfig;
+    /**
+     * Updates to be saved (user -> updates)
+     */
     private final Map<UUID, Map<String, BigDecimal>> progressUpdates = new ConcurrentHashMap<>();
     private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
     private final int maxActiveQuests;
@@ -40,6 +46,9 @@ public abstract class QuestDataService implements Listener {
         service.shutdown();
     }
 
+    /**
+     * Check and notify users if any of their quests have expired
+     */
     private void checkExpiredQuests() {
         userQuestProgress.forEach((id, data) -> data.entrySet().removeIf(entry -> {
             if (!entry.getValue().isExpired()) {
@@ -54,6 +63,13 @@ public abstract class QuestDataService implements Listener {
         }));
     }
 
+    /**
+     * Attempt to activate a quest
+     *
+     * @param player Player activating quest
+     * @param quest  Quest to activate
+     * @return Null if successful, otherwise the error message
+     */
     public String activateQuest(Player player, Quest quest) {
         if (quest.permission() != null && !player.hasPermission(quest.permission())) {
             return "No_Quest_Permission";
@@ -68,6 +84,13 @@ public abstract class QuestDataService implements Listener {
         return null;
     }
 
+    /**
+     * Attempt to cancel a quest
+     *
+     * @param player Player cancelling quest
+     * @param quest  Quest to cancel
+     * @return Null if successful, otherwise the error message
+     */
     public String cancelQuest(Player player, Quest quest) {
         Map<String, QuestProgress> activeQuests = userQuestProgress.get(player.getUniqueId());
         if (activeQuests == null) return "Quest_Not_Active";
@@ -82,7 +105,7 @@ public abstract class QuestDataService implements Listener {
         return null;
     }
 
-    private void saveProgress() {
+    public void saveProgress() {
         progressUpdates.forEach(this::saveProgress);
         progressUpdates.clear();
     }
@@ -100,8 +123,18 @@ public abstract class QuestDataService implements Listener {
         QuestPlugin.getInstance().getLanguageService().display(player, "messages.quest.complete");
     }
 
+    /**
+     * Remove player's quest data from cache
+     *
+     * @param userID Player to invalidate
+     */
+    public void invalidateQuestData(UUID userID) {
+        userQuestProgress.remove(userID);
+    }
+
     private void saveProgress(UUID userID, Map<String, BigDecimal> questProgress) {
         var progressMap = userQuestProgress.computeIfAbsent(userID, uuid -> new ConcurrentHashMap<>());
+        // FIXME: If database queries are slow, this could be rewritten to use batch updates
         for (Map.Entry<String, BigDecimal> entry : questProgress.entrySet()) {
             Quest quest = questConfig.getQuest(entry.getKey());
             QuestProgress progress = progressMap.computeIfAbsent(entry.getKey(), s -> QuestProgress.NOT_STARTED).add(entry.getValue());
@@ -114,6 +147,11 @@ public abstract class QuestDataService implements Listener {
         }
     }
 
+    /**
+     * Alert a user of their active quests
+     *
+     * @param player Player to alert
+     */
     private void alertActiveQuests(Player player) {
         var activeQuests = userQuestProgress.get(player.getUniqueId());
         if (activeQuests == null) return;
@@ -125,8 +163,8 @@ public abstract class QuestDataService implements Listener {
             if (quest == null) return;
             double percent = progress.amount().divide(quest.requiredAmount(), RoundingMode.HALF_EVEN).doubleValue() * 100.0D;
             languageService.display(player, "messages.quest.active-quest",
-                    quest.description(), LanguageService.formatID(quest.type().name()), LanguageService.formatNumber(progress.amount()),
-                    LanguageService.formatNumber(quest.requiredAmount()), LanguageService.createProgressBar(percent));
+                    quest.description(), LocaleUtil.formatID(quest.type().name()), LocaleUtil.formatNumber(progress.amount()),
+                    LocaleUtil.formatNumber(quest.requiredAmount()), LocaleUtil.createProgressBar(percent));
         });
     }
 

@@ -1,10 +1,10 @@
 package com.birthdates.quests.menu;
 
 import com.birthdates.quests.QuestPlugin;
-import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.menu.button.ButtonAction;
 import com.birthdates.quests.menu.button.ConfigButton;
 import com.birthdates.quests.menu.button.MenuButton;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -39,7 +39,7 @@ public abstract class Menu {
     /**
      * Menu constructor
      *
-     * @param path Path to menu in menu config
+     * @param path        Path to menu in menu config
      * @param menuService Menu service
      */
     public Menu(String path, MenuService menuService) {
@@ -94,10 +94,10 @@ public abstract class Menu {
      * Add a temporary button to the menu
      *
      * @param player Player to add the button for
-     * @param slot Slot to add the button to
-     * @param path Path to button in menu config
+     * @param slot   Slot to add the button to
+     * @param path   Path to button in menu config
      * @param expiry Expiry time
-     * @param unit Expiry time unit
+     * @param unit   Expiry time unit
      * @return {@link CompletableFuture} that completes when the button expires
      */
     public CompletableFuture<Void> setTemporaryButton(Player player, int slot, String path, long expiry, TimeUnit unit) {
@@ -107,10 +107,10 @@ public abstract class Menu {
     /**
      * Add a temporary button to the menu
      *
-     * @param slot Slot to add the button to
+     * @param slot      Slot to add the button to
      * @param newButton New button
-     * @param expiry Expiry time
-     * @param unit Expiry time unit
+     * @param expiry    Expiry time
+     * @param unit      Expiry time unit
      * @return {@link CompletableFuture} that completes when the button expires
      */
     public CompletableFuture<Void> setTemporaryButton(int slot, MenuButton newButton, long expiry, TimeUnit unit) {
@@ -162,7 +162,7 @@ public abstract class Menu {
     /**
      * Refresh menu for player
      *
-     * @param player Target player
+     * @param player         Target player
      * @param clearInventory Whether to clear the inventory (useful for when the size of {@link Menu#buttons} changes)
      */
     public void refresh(Player player, boolean clearInventory) {
@@ -213,7 +213,7 @@ public abstract class Menu {
      * Useful for adding dynamic values to buttons.
      *
      * @param player Player seeing the button
-     * @param path Path to button in menu config
+     * @param path   Path to button in menu config
      * @param button Button instance to edit
      */
     protected void editConfigButton(Player player, String path, ConfigButton button) {
@@ -239,7 +239,7 @@ public abstract class Menu {
      * @return Menu title
      */
     public String getTitle(Player player) {
-        return LanguageService.color(QuestPlugin.getInstance().getLanguageService().get(config.getString("title"), player));
+        return LocaleUtil.color(QuestPlugin.getInstance().getLanguageService().get(config.getString("title"), player));
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.birthdates.quests.config.redis;
+package com.birthdates.quests.config.impl;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.config.QuestConfig;
@@ -57,7 +57,7 @@ public class SQLQuestConfig implements QuestConfig {
         });
     }
 
-    public void invalidate(String id) {
+    public void invalidateCache(String id) {
         questCache.remove(id);
     }
 

@@ -1,7 +1,7 @@
 package com.birthdates.quests.menu.button;
 
 import com.birthdates.quests.QuestPlugin;
-import com.birthdates.quests.lang.LanguageService;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -69,14 +69,14 @@ public class ConfigButton implements MenuButton {
         var meta = itemStack.getItemMeta();
         if (meta.hasDisplayName()) {
             String name = QuestPlugin.getInstance().getLanguageService().get(meta.getDisplayName(), language);
-            meta.setDisplayName(LanguageService.color(name));
+            meta.setDisplayName(LocaleUtil.color(name));
         }
         if (meta.hasLore()) {
             var lore = meta.getLore();
             List<String> newLore = new ArrayList<>();
             for (String entry : lore) {
                 List<String> toAdd = new ArrayList<>(QuestPlugin.getInstance().getLanguageService().getList(entry, language));
-                toAdd.replaceAll(LanguageService::color);
+                toAdd.replaceAll(LocaleUtil::color);
                 newLore.addAll(toAdd);
             }
             meta.setLore(newLore);

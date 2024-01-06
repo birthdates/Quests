@@ -1,4 +1,4 @@
-package com.birthdates.quests.config.redis;
+package com.birthdates.quests.config.impl;
 
 import com.birthdates.quests.config.QuestConfig;
 import com.birthdates.quests.quest.Quest;
@@ -29,7 +29,7 @@ public class MockQuestConfig implements QuestConfig {
     }
 
     @Override
-    public void invalidate(String id) {
+    public void invalidateCache(String id) {
 
     }
 

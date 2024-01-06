@@ -8,6 +8,7 @@ import com.birthdates.quests.menu.Menu;
 import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.menu.quest.main.QuestMenu;
 import com.birthdates.quests.quest.Quest;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -46,7 +47,7 @@ public class QuestCommand implements CommandExecutor {
         questConfig.saveQuest(quest.rewardCommands(newCommands));
 
         String msg = languageService.get("messages.quest.admin-removed-reward", player);
-        player.sendMessage(LanguageService.color(msg));
+        player.sendMessage(LocaleUtil.color(msg));
     }
 
     public void onAddReward(Player player, String questId) {
@@ -61,7 +62,7 @@ public class QuestCommand implements CommandExecutor {
             questConfig.saveQuest(quest.rewardCommands(newCommands));
 
             String msg = languageService.get("messages.quest.admin-added-reward", player);
-            player.sendMessage(LanguageService.color(msg));
+            player.sendMessage(LocaleUtil.color(msg));
         });
     }
 

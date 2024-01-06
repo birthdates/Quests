@@ -82,3 +82,4 @@ en:
   'messages.never': 'never'
   'messages.quest.complete': '&aYou have completed a quest!'
   'messages.quest.expired': '&cYou have failed a quest!'
+  'messages.language.create-entry-text': '&aEnter new entry text:'

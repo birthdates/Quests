@@ -7,6 +7,7 @@ import com.birthdates.quests.menu.PaginatedMenu;
 import com.birthdates.quests.menu.button.ButtonAction;
 import com.birthdates.quests.menu.button.MenuButton;
 import com.birthdates.quests.menu.lang.view.button.LanguageButton;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
@@ -15,14 +16,19 @@ import java.util.List;
 public class LanguageMenu extends PaginatedMenu {
 
     private final LanguageService languageService;
-    private final List<String> languageKey;
     private final String language;
+    private List<String> languageKey;
 
     public LanguageMenu(MenuService menuService, LanguageService languageService, String language) {
         super("LanguageMenu", menuService);
         this.languageService = languageService;
-        this.languageKey = languageService.getLanguageMap(language).keySet().stream().toList();
         this.language = language;
+    }
+
+    @Override
+    protected void loadButtons(Player player) {
+        languageKey = languageService.getLanguageMap(language).keySet().stream().toList();
+        super.loadButtons(player);
     }
 
     @Override
@@ -33,9 +39,10 @@ public class LanguageMenu extends PaginatedMenu {
     }
 
     private void createLanguageEntry(Player player, int slot, ClickType type) {
+        player.closeInventory();
         InputService.awaitInput(player, "messages.language.create-entry-key")
                 .thenAccept(key -> InputService.awaitInput(player, "messages.language.create-entry-text").thenAccept(text ->
-                        languageService.set(language, key, text)
+                        languageService.set(key, text, language)
                 ));
     }
 
@@ -49,7 +56,7 @@ public class LanguageMenu extends PaginatedMenu {
 
     @Override
     public String getTitle(Player player) {
-        return super.getTitle(player).replaceAll("%language%", LanguageService.localeToName(language));
+        return super.getTitle(player).replaceAll("%language%", LocaleUtil.localeToName(language));
     }
 
     @Override

@@ -82,7 +82,7 @@ public abstract class PaginatedMenu extends Menu {
      * Get the button for a specific index
      *
      * @param player Target player
-     * @param index Index of the button (not a slot but index in a list of data, see {@link PaginatedMenu#getTotalButtons()})
+     * @param index  Index of the button (not a slot but index in a list of data, see {@link PaginatedMenu#getTotalButtons()})
      * @return {@link MenuButton} for the index
      */
     protected abstract MenuButton getButton(Player player, int index);

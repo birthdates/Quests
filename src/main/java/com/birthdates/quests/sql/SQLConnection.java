@@ -5,7 +5,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.sql.DataSource;
-import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Executor;

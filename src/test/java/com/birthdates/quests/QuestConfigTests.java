@@ -3,14 +3,13 @@ package com.birthdates.quests;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.quest.QuestType;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.annotation.Testable;
 
 import java.math.BigDecimal;
 
@@ -18,13 +17,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class QuestConfigTests {
 
-    private ServerMock server;
     private QuestPlugin questPlugin;
+    private PlayerMock player;
 
     @BeforeEach
     public void setUp() {
-        server = MockBukkit.mock();
+        ServerMock server = MockBukkit.mock();
         questPlugin = MockBukkit.load(QuestPlugin.class);
+        player = server.addPlayer();
+        player.setOp(true);
     }
 
     @AfterEach
@@ -34,8 +35,6 @@ public class QuestConfigTests {
 
     @Test
     public void testCreateQuest() {
-        PlayerMock player = server.addPlayer();
-        player.setOp(true);
         player.performCommand("quest admin");
         player.simulateInventoryClick(4);
         player.chat("test");
@@ -48,8 +47,6 @@ public class QuestConfigTests {
     @Test
     public void testRemoveQuest() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
-        player.setOp(true);
         player.performCommand("quest admin");
         player.simulateInventoryClick(player.getOpenInventory(), ClickType.MIDDLE, 10);
         assertTrue(questPlugin.getQuestConfig().getAllQuests().isEmpty());
@@ -58,11 +55,9 @@ public class QuestConfigTests {
     @Test
     public void testEditPermission() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
-        player.setOp(true);
         player.performCommand("quest admin");
-        player.simulateInventoryClick(10);
-        player.simulateInventoryClick(13);
+        player.simulateInventoryClick(10); // Click quest
+        player.simulateInventoryClick(13); // Click permission button
         String newPermission = TestUtil.randomStr();
         player.chat(newPermission);
         TestUtil.waitTick();
@@ -72,8 +67,6 @@ public class QuestConfigTests {
     @Test
     public void testEditType() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
-        player.setOp(true);
         player.performCommand("quest admin");
         player.simulateInventoryClick(10);
         player.simulateInventoryClick(21);
@@ -85,9 +78,7 @@ public class QuestConfigTests {
     @Test
     public void testEditIcon() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
         Material material = Material.values()[TestUtil.randomInt(0, Material.values().length - 1)];
-        player.setOp(true);
         player.performCommand("quest admin");
         player.simulateInventoryClick(10);
         player.simulateInventoryClick(22);
@@ -99,9 +90,7 @@ public class QuestConfigTests {
     @Test
     public void testEditDescription() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
         String description = TestUtil.randomStr();
-        player.setOp(true);
         player.performCommand("quest admin");
         player.simulateInventoryClick(10);
         player.simulateInventoryClick(23);
@@ -113,9 +102,7 @@ public class QuestConfigTests {
     @Test
     public void testEditRequired() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
         BigDecimal required = BigDecimal.valueOf(TestUtil.randomInt(0, 100));
-        player.setOp(true);
         player.performCommand("quest admin");
         player.simulateInventoryClick(10);
         player.simulateInventoryClick(30);
@@ -127,9 +114,7 @@ public class QuestConfigTests {
     @Test
     public void testEditTarget() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
         String target = TestUtil.randomStr();
-        player.setOp(true);
         player.performCommand("quest admin");
         player.simulateInventoryClick(10);
         player.simulateInventoryClick(31);
@@ -141,8 +126,6 @@ public class QuestConfigTests {
     @Test
     public void testAddReward() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
-        player.setOp(true);
         String randomStr = TestUtil.randomStr();
         player.performCommand("quest add-reward test");
         TestUtil.waitTick();
@@ -155,8 +138,6 @@ public class QuestConfigTests {
     @Test
     public void testRemoveReward() {
         testAddReward();
-        PlayerMock player = server.addPlayer();
-        player.setOp(true);
         player.performCommand("quest remove-reward test 0");
         TestUtil.waitTick();
         assertTrue(questPlugin.getQuestConfig().getQuest("test").rewardCommands().isEmpty());
@@ -165,10 +146,8 @@ public class QuestConfigTests {
     @Test
     public void testEditExpiry() {
         testCreateQuest();
-        PlayerMock player = server.addPlayer();
         String expiryStr = "1d";
-        long expiry = LanguageService.parseExpiry(expiryStr);
-        player.setOp(true);
+        long expiry = LocaleUtil.parseExpiry(expiryStr);
         player.performCommand("quest admin");
         player.simulateInventoryClick(10);
         player.simulateInventoryClick(40);

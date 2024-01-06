@@ -35,7 +35,7 @@ public class UpdateListener {
 
                 // Handle quest or language update
                 if (key.equals("QUEST_CONFIG")) {
-                    config.invalidate(value);
+                    config.invalidateCache(value);
                     config.getQuest(value);
                     return;
                 }
@@ -80,7 +80,7 @@ public class UpdateListener {
      * Send a specific update to the redis server
      *
      * @param channel Update type
-     * @param key Update key (what to update)
+     * @param key     Update key (what to update)
      */
     public void sendUpdate(String channel, String key) {
         jedis.publish("QUEST_UPDATE", channel + "$" + key);

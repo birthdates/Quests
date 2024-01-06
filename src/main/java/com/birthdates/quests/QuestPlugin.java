@@ -3,8 +3,8 @@ package com.birthdates.quests;
 import com.birthdates.quests.command.LanguageCommand;
 import com.birthdates.quests.command.QuestCommand;
 import com.birthdates.quests.config.QuestConfig;
-import com.birthdates.quests.config.redis.MockQuestConfig;
-import com.birthdates.quests.config.redis.SQLQuestConfig;
+import com.birthdates.quests.config.impl.MockQuestConfig;
+import com.birthdates.quests.config.impl.SQLQuestConfig;
 import com.birthdates.quests.data.QuestDataService;
 import com.birthdates.quests.data.impl.MockQuestDataService;
 import com.birthdates.quests.data.impl.SQLQuestDataService;
@@ -47,12 +47,26 @@ public class QuestPlugin extends JavaPlugin {
         return instance;
     }
 
+    /**
+     * Check if the plugin is running in a test environment
+     *
+     * @return True if the plugin is running in a test environment
+     */
+    private static boolean isTestEnvironment() {
+        try {
+            Class.forName("org.junit.jupiter.api.Test");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
         boolean testEnvironment = isTestEnvironment();
 
-        // Load services
+        // Load config
         if (testEnvironment) {
             questConfig = new MockQuestConfig();
         } else {
@@ -60,14 +74,18 @@ public class QuestPlugin extends JavaPlugin {
             questConfig = new SQLQuestConfig(sqlConnection);
         }
 
+        // Load language service
         YamlConfiguration defaultLang = getConfig("default_lang.yml");
         if (testEnvironment) {
             languageService = new MockLanguageService(defaultLang);
         } else {
             languageService = new SQLLanguageService(defaultLang, sqlConnection);
         }
-        updateListener = new UpdateListener(questConfig, getConfig().getConfigurationSection("Redis"), languageService);
 
+        updateListener = new UpdateListener(questConfig, getConfig().getConfigurationSection("Redis"), languageService);
+        menuService = new MenuService(this, getConfig("menus.yml"));
+
+        // Load data service
         int maxActiveQuests = getConfig().getInt("Max-Active-Quests");
         if (testEnvironment) {
             dataService = new MockQuestDataService(questConfig, maxActiveQuests);
@@ -75,7 +93,6 @@ public class QuestPlugin extends JavaPlugin {
             dataService = new SQLQuestDataService(questConfig, getConfig().getInt("Max-Active-Quests"), sqlConnection);
         }
 
-        menuService = new MenuService(this, getConfig("menus.yml"));
 
         // Register events and commands
         Bukkit.getPluginManager().registerEvents(new QuestListener(dataService), this);
@@ -85,15 +102,6 @@ public class QuestPlugin extends JavaPlugin {
 
         getCommand("language").setExecutor(new LanguageCommand(languageService, menuService));
         getCommand("quest").setExecutor(new QuestCommand(questConfig, languageService, menuService, dataService));
-    }
-
-    private static boolean isTestEnvironment() {
-        try {
-            Class.forName("org.junit.jupiter.api.Test");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 
     /**
@@ -124,11 +132,6 @@ public class QuestPlugin extends JavaPlugin {
         instance = null;
     }
 
-    /**
-     * Get the menu service (used for opening/creating menus)
-     *
-     * @return {@link MenuService}
-     */
     public MenuService getMenuService() {
         return menuService;
     }
@@ -142,20 +145,15 @@ public class QuestPlugin extends JavaPlugin {
         return updateListener;
     }
 
-    /**
-     * Get the language service (used for loading and retrieving language strings)
-     *
-     * @return {@link LanguageService}
-     */
     public LanguageService getLanguageService() {
         return languageService;
     }
 
-    public SQLConnection getSqlConnection() {
-        return sqlConnection;
-    }
-
     public QuestConfig getQuestConfig() {
         return questConfig;
+    }
+
+    public QuestDataService getDataService() {
+        return dataService;
     }
 }

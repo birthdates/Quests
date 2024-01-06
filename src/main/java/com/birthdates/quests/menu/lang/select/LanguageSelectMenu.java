@@ -22,7 +22,7 @@ public class LanguageSelectMenu extends Menu {
     protected void loadButtons(Player player) {
         super.loadButtons(player);
 
-        languageService.getLanguages().forEach(language ->
+        languageService.getAvailableLanguages().forEach(language ->
                 buttons.put(buttons.size(), new SelectButton(config.getConfigurationSection("format.select"), player, language, this))
         );
     }

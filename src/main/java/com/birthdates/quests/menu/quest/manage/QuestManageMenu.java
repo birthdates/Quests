@@ -10,6 +10,7 @@ import com.birthdates.quests.menu.button.ButtonAction;
 import com.birthdates.quests.menu.button.ConfigButton;
 import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestType;
+import com.birthdates.quests.util.LocaleUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -111,7 +112,7 @@ public class QuestManageMenu extends Menu {
 
     private void changeExpiry(Player player) {
         InputService.awaitInput(player, "messages.quest.admin-change-expiry").thenAccept(expiry ->
-                questConfig.saveQuest(quest.expiry(LanguageService.parseExpiry(expiry))));
+                questConfig.saveQuest(quest.expiry(LocaleUtil.parseExpiry(expiry))));
     }
 
     private void changePermission(Player player) {
@@ -127,14 +128,14 @@ public class QuestManageMenu extends Menu {
     @Override
     protected void editConfigButton(Player player, String path, ConfigButton button) {
         String any = QuestPlugin.getInstance().getLanguageService().get("messages.any", player);
-        button.setPlaceholder("%type%", LanguageService.formatID(quest.type().name()))
+        button.setPlaceholder("%type%", LocaleUtil.formatID(quest.type().name()))
                 .setPlaceholder("%description%", quest.description())
-                .setPlaceholder("%required%", LanguageService.formatNumber(quest.requiredAmount()))
-                .setPlaceholder("%target%", quest.target() == null ? any : LanguageService.formatID(quest.target()))
-                .setPlaceholder("%icon%", LanguageService.formatID(quest.icon().name()))
+                .setPlaceholder("%required%", LocaleUtil.formatNumber(quest.requiredAmount()))
+                .setPlaceholder("%target%", quest.target() == null ? any : LocaleUtil.formatID(quest.target()))
+                .setPlaceholder("%icon%", LocaleUtil.formatID(quest.icon().name()))
                 .setPlaceholder("%name%", quest.id())
                 .setPlaceholder("%permission%", quest.permission() == null ? any : quest.permission())
-                .setPlaceholder("%expiry%", LanguageService.formatExpiry(player, quest.expiry()))
+                .setPlaceholder("%expiry%", LocaleUtil.formatExpiry(player, quest.expiry()))
                 .setPlaceholder("%rewards%", quest.rewardCommands());
         if (path.equalsIgnoreCase("icon")) {
             button.getItem().setType(quest.icon());

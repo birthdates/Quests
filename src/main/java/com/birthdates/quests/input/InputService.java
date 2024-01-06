@@ -1,8 +1,8 @@
 package com.birthdates.quests.input;
 
 import com.birthdates.quests.QuestPlugin;
-import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.menu.Menu;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,15 +16,25 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+/**
+ * Service to handle input logic from users
+ */
 public class InputService implements Listener {
     private static final Map<UUID, Consumer<String>> AWAITING_INPUT = new ConcurrentHashMap<>();
     private static final Map<UUID, Menu> IN_MENU = new ConcurrentHashMap<>();
 
+    /**
+     * Await chat input from a player
+     *
+     * @param player  Target player
+     * @param message Language message to send player before awaiting input
+     * @return Future that will be completed with the player's input
+     */
     public static CompletableFuture<String> awaitInput(Player player, String message) {
         CompletableFuture<String> future = new CompletableFuture<>();
         if (message != null) {
             String lang = QuestPlugin.getInstance().getLanguageService().get(message, player);
-            player.sendMessage(LanguageService.color(lang));
+            player.sendMessage(LocaleUtil.color(lang));
         }
         Menu menu = QuestPlugin.getInstance().getMenuService().getMenu(player);
         if (menu != null) {

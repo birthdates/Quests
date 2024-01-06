@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Mock service used for testing.
+ */
 public class MockLanguageService implements LanguageService {
 
     private final Map<String, Map<String, String>> languageCache = new HashMap<>();
@@ -40,7 +43,7 @@ public class MockLanguageService implements LanguageService {
     }
 
     @Override
-    public Collection<String> getLanguages() {
+    public Collection<String> getAvailableLanguages() {
         return languageCache.keySet();
     }
 

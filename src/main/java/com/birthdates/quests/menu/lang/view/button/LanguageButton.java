@@ -4,6 +4,7 @@ import com.birthdates.quests.input.InputService;
 import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.menu.button.ConfigButton;
 import com.birthdates.quests.menu.lang.view.LanguageMenu;
+import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -20,7 +21,7 @@ public class LanguageButton extends ConfigButton {
         this.parent = parent;
         this.key = key;
 
-        setPlaceholder("%key%", key).setPlaceholder("%text%", LanguageService.color(LanguageService.truncate(text, 20)));
+        setPlaceholder("%key%", key).setPlaceholder("%text%", LocaleUtil.color(LocaleUtil.truncate(text, 20)));
     }
 
     @Override

@@ -34,7 +34,7 @@ public class MenuService implements Listener {
      * Open a menu for a player
      *
      * @param player Target player
-     * @param menu Menu to open
+     * @param menu   Menu to open
      */
     public void openMenu(Player player, Menu menu) {
         if (inMenu.containsKey(player.getUniqueId())) {

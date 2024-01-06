@@ -61,7 +61,7 @@ LanguageSelectMenu:
       item: BOOK
       name: "items.language-select.name"
       lore:
-          - "items.language-select.lore"
+        - "items.language-select.lore"
 
 LanguageMenu:
   title: "menus.language.title"
@@ -77,14 +77,14 @@ LanguageMenu:
       item: PAPER
       name: "items.language.name"
       lore:
-          - "items.language.lore"
+        - "items.language.lore"
   items:
     create:
       item: LIME_STAINED_GLASS_PANE
       slot: 4
       name: "items.create.name"
       lore:
-          - "items.create.lore"
+        - "items.create.lore"
 
 QuestMenu:
   title: "menus.quest.title"
@@ -100,19 +100,19 @@ QuestMenu:
       item: BARRIER
       name: "items.not-started.name"
       lore:
-          - "items.not-started.lore"
+        - "items.not-started.lore"
     in_progress:
       item: LIME_STAINED_GLASS_PANE
       glow: true
       name: "items.in-progress.name"
       lore:
-          - "items.in-progress.lore"
+        - "items.in-progress.lore"
     completed:
       item: DIAMOND_BLOCK
       glow: true
       name: "items.completed.name"
       lore:
-          - "items.completed.lore"
+        - "items.completed.lore"
 
 QuestAdminMenu:
   title: "menus.quest.title"
@@ -128,14 +128,14 @@ QuestAdminMenu:
       item: PAPER
       name: "items.admin.name"
       lore:
-          - "items.admin.lore"
+        - "items.admin.lore"
   items:
     create:
       item: LIME_STAINED_GLASS_PANE
       slot: 4
       name: "items.create-quest.name"
       lore:
-          - "items.create-quest.lore"
+        - "items.create-quest.lore"
 
 QuestManageMenu:
   title: "menus.quest-manage.title"
@@ -146,7 +146,7 @@ QuestManageMenu:
       item: REDSTONE
       name: "items.quest-permission.name"
       lore:
-          - "items.quest-permission.lore"
+        - "items.quest-permission.lore"
     type:
       slot: 21
       item: PAPER
@@ -158,34 +158,34 @@ QuestManageMenu:
       item: LAVA_BUCKET
       name: "items.quest-icon.name"
       lore:
-          - "items.quest-icon.lore"
+        - "items.quest-icon.lore"
     description:
       slot: 23
       item: BOOK
       name: "items.quest-description.name"
       lore:
-          - "items.quest-description.lore"
+        - "items.quest-description.lore"
     required:
       slot: 30
       item: BARRIER
       name: "items.quest-required.name"
       lore:
-          - "items.quest-required.lore"
+        - "items.quest-required.lore"
     target:
       slot: 31
       item: BEACON
       name: "items.quest-target.name"
       lore:
-          - "items.quest-target.lore"
+        - "items.quest-target.lore"
     rewards:
       slot: 32
       item: DIAMOND
       name: "items.quest-rewards.name"
       lore:
-          - "items.quest-rewards.lore"
+        - "items.quest-rewards.lore"
     expiry:
       slot: 40
       item: CLOCK
       name: "items.quest-expiry.name"
       lore:
-          - "items.quest-expiry.lore"
+        - "items.quest-expiry.lore"
