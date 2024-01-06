@@ -10,7 +10,6 @@ import java.util.logging.Logger;
  * Executor for SQL tasks (will print errors to given logger)
  */
 public class SQLExecutor extends ThreadPoolExecutor {
-
     private final Logger logger;
 
     public SQLExecutor(Logger logger) {

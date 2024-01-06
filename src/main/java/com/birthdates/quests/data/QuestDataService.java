@@ -160,7 +160,7 @@ public abstract class QuestDataService implements Listener {
         languageService.display(player, "messages.quest.active-quests");
         activeQuests.forEach((questId, progress) -> {
             Quest quest = questConfig.getQuest(questId);
-            if (quest == null) return;
+            if (quest == null || progress.status() != QuestStatus.IN_PROGRESS) return;
             double percent = progress.amount().divide(quest.requiredAmount(), RoundingMode.HALF_EVEN).doubleValue() * 100.0D;
             languageService.display(player, "messages.quest.active-quest",
                     quest.description(), LocaleUtil.formatID(quest.type().name()), LocaleUtil.formatNumber(progress.amount()),

@@ -9,6 +9,7 @@ import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.menu.button.ButtonAction;
 import com.birthdates.quests.menu.button.ConfigButton;
 import com.birthdates.quests.quest.Quest;
+import com.birthdates.quests.quest.QuestProgress;
 import com.birthdates.quests.quest.QuestType;
 import com.birthdates.quests.util.LocaleUtil;
 import net.kyori.adventure.text.Component;
@@ -20,7 +21,6 @@ import org.bukkit.entity.Player;
 import java.math.BigDecimal;
 
 public class QuestManageMenu extends Menu {
-
     private final String questId;
     private final QuestConfig questConfig;
     private Quest quest;
@@ -127,16 +127,7 @@ public class QuestManageMenu extends Menu {
 
     @Override
     protected void editConfigButton(Player player, String path, ConfigButton button) {
-        String any = QuestPlugin.getInstance().getLanguageService().get("messages.any", player);
-        button.setPlaceholder("%type%", LocaleUtil.formatID(quest.type().name()))
-                .setPlaceholder("%description%", quest.description())
-                .setPlaceholder("%required%", LocaleUtil.formatNumber(quest.requiredAmount()))
-                .setPlaceholder("%target%", quest.target() == null ? any : LocaleUtil.formatID(quest.target()))
-                .setPlaceholder("%icon%", LocaleUtil.formatID(quest.icon().name()))
-                .setPlaceholder("%name%", quest.id())
-                .setPlaceholder("%permission%", quest.permission() == null ? any : quest.permission())
-                .setPlaceholder("%expiry%", LocaleUtil.formatExpiry(player, quest.expiry()))
-                .setPlaceholder("%rewards%", quest.rewardCommands());
+        quest.formatButton(player, QuestProgress.NOT_STARTED, button, false);
         if (path.equalsIgnoreCase("icon")) {
             button.getItem().setType(quest.icon());
         }

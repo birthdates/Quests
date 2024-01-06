@@ -2,7 +2,6 @@ package com.birthdates.quests.input;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.menu.Menu;
-import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,8 +32,7 @@ public class InputService implements Listener {
     public static CompletableFuture<String> awaitInput(Player player, String message) {
         CompletableFuture<String> future = new CompletableFuture<>();
         if (message != null) {
-            String lang = QuestPlugin.getInstance().getLanguageService().get(message, player);
-            player.sendMessage(LocaleUtil.color(lang));
+            QuestPlugin.getInstance().getLanguageService().display(player, message);
         }
 
         Menu menu = QuestPlugin.getInstance().getMenuService().getMenu(player);

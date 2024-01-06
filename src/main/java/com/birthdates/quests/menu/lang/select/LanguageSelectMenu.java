@@ -8,7 +8,6 @@ import com.birthdates.quests.menu.lang.view.LanguageMenu;
 import org.bukkit.entity.Player;
 
 public class LanguageSelectMenu extends Menu {
-
     private final LanguageService languageService;
     private final MenuService menuService;
 

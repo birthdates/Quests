@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class QuestMenu extends PaginatedMenu {
-
     private final QuestDataService dataService;
     private final QuestConfig questConfig;
     private final boolean admin;

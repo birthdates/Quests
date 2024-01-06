@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
 public class LanguageButton extends ConfigButton {
-
     private final LanguageService languageService;
     private final String key;
     private final LanguageMenu parent;

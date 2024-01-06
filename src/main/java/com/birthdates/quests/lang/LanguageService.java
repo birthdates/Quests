@@ -15,7 +15,6 @@ import java.util.stream.Stream;
  * Service to handle language logic
  */
 public interface LanguageService {
-
     /**
      * Load the default language from a config
      *

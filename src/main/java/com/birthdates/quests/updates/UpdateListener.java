@@ -12,7 +12,6 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
  * Listener for updates to the quest config and language (using Redis pub sub)
  */
 public class UpdateListener {
-
     private final JedisPubSub pubSub;
     private final JedisPool jedisPool;
     private final ConfigurationSection redisConfig;

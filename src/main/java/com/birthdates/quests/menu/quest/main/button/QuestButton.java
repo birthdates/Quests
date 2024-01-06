@@ -1,20 +1,15 @@
 package com.birthdates.quests.menu.quest.main.button;
 
-import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.menu.button.ButtonAction;
 import com.birthdates.quests.menu.button.ConfigButton;
 import com.birthdates.quests.menu.quest.main.QuestMenu;
 import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestProgress;
-import com.birthdates.quests.util.LocaleUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
-import java.math.RoundingMode;
-
 public class QuestButton extends ConfigButton {
-
     private final QuestMenu parent;
     private final Quest quest;
 
@@ -22,16 +17,7 @@ public class QuestButton extends ConfigButton {
         super(section, player, action);
 
         getItem().setType(quest.icon());
-        double percent = progress.amount().divide(quest.requiredAmount(), RoundingMode.HALF_EVEN).doubleValue() * 100D;
-        String any = QuestPlugin.getInstance().getLanguageService().get("messages.any", player);
-        setPlaceholder("%description%", quest.description().split("\\\\n"))
-                .setPlaceholder("%name%", LocaleUtil.formatID(quest.type().name()))
-                .setPlaceholder("%required%", LocaleUtil.formatNumber(quest.requiredAmount()))
-                .setPlaceholder("%target%", quest.target() == null ? any : LocaleUtil.formatID(quest.target()))
-                .setPlaceholder("%progress%", LocaleUtil.formatNumber(progress.amount()))
-                .setPlaceholder("%expiry%", LocaleUtil.formatExpiry(player, progress.expiry() - System.currentTimeMillis()))
-                .setPlaceholder("%permission%", quest.permission() == null ? any : quest.permission())
-                .setPlaceholder("%progress_bar%", LocaleUtil.createProgressBar(percent));
+        quest.formatButton(player, progress, this, true);
         this.parent = parent;
         this.quest = quest;
     }

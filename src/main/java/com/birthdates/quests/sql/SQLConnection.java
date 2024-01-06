@@ -14,7 +14,6 @@ import java.util.logging.Logger;
  * SQL connection pool
  */
 public class SQLConnection {
-
     private final DataSource hikari;
     private final Executor executor;
 

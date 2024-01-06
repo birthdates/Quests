@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class ConfigButton implements MenuButton {
-
     protected final String language;
     private final ItemStack itemStack;
     private final ButtonAction action;

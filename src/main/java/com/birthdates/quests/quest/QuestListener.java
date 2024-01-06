@@ -14,7 +14,6 @@ import java.math.BigDecimal;
  * Listeners for specific {@link QuestType} events
  */
 public class QuestListener implements Listener {
-
     private final QuestDataService dataService;
 
     public QuestListener(QuestDataService dataService) {

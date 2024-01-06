@@ -14,7 +14,6 @@ import org.bukkit.event.inventory.ClickType;
 import java.util.List;
 
 public class LanguageMenu extends PaginatedMenu {
-
     private final LanguageService languageService;
     private final String language;
     private List<String> languageKey;

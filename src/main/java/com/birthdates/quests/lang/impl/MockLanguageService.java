@@ -12,7 +12,6 @@ import java.util.concurrent.CompletableFuture;
  * Mock service used for testing.
  */
 public class MockLanguageService implements LanguageService {
-
     private final Map<String, Map<String, String>> languageCache = new HashMap<>();
 
     public MockLanguageService(YamlConfiguration defaultLang) {

@@ -13,16 +13,19 @@ A simple quest system for Minecraft (tested on 1.20.4).
 ## Requirements
 - PostgresSQL `9.6` or higher
 - Redis server
+- Java 17 (in path)
 
 ## Usage
 
 ### Installation
-1. Clone this repository
-2. Run `gradle build` (requires [Gradle](https://gradle.org/install/))
-3. Copy `build/libs/Quests-*.jar` to your server's `plugins` folder
-4. Start the server
-5. Configure the plugin
-6. Restart the server
+1. Clone [MockBukkit](https://github.com/MockBukkit/MockBukkit)
+2. Run `gradle publishToMavenLocal` (requires [Gradle](https://gradle.org/install/))
+3. Clone this repository
+4. Run `gradle build` (requires [Gradle](https://gradle.org/install/))
+5. Copy `build/libs/Quests-*.jar` to your server's `plugins` folder
+6. Start the server
+7. Configure the plugin
+8. Restart the server
 
 ### Language
 The plugin supports multiple languages. The default language is English. The language a player sees is based on their client.

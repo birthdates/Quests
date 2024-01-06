@@ -10,7 +10,6 @@ import java.math.BigDecimal;
  * @param expiry The time the quest expires
  */
 public record QuestProgress(BigDecimal amount, QuestStatus status, long expiry) {
-
     /**
      * Default quest progress (for quests that don't have progress)
      */

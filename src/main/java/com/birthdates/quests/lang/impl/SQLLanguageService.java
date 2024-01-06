@@ -8,11 +8,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class SQLLanguageService implements LanguageService {
-
     private final SQLConnection sql;
+    /**
+     * Cache of language -> language map (entry key -> value/text)
+     */
     private final Map<String, Map<String, String>> languageCache = new HashMap<>();
 
     public SQLLanguageService(YamlConfiguration defaultLang, SQLConnection sql) {
@@ -63,23 +66,30 @@ public class SQLLanguageService implements LanguageService {
     public String get(String key, String language) {
         Map<String, String> languageMap = languageCache.get(language.toLowerCase());
         if (languageMap == null) {
+            // Try to get the language without the country code
             if (language.contains("_")) {
                 return get(key, language.split("_")[0].toLowerCase());
             }
 
+            // No available languages
             if (languageCache.isEmpty()) {
                 return key;
             }
-
-            return get(key, !language.equals("en") ? "en" : languageCache.keySet().stream().findFirst().orElse(null));
+            return get(key, !language.equals("en") ? "en"
+                    : languageCache.keySet().stream().findFirst().orElse(null));
         }
         String value = languageMap.get(key);
-        if (value == null) {
-            return key;
-        }
-        return value;
+        return Objects.requireNonNullElse(value, key);
     }
 
+    /**
+     * Update our cache and broadcast the update to other servers (if applicable)
+     *
+     * @param key       The entry key
+     * @param value     The entry value/text
+     * @param language  The language
+     * @param broadcast Whether to broadcast the update to other servers
+     */
     private void updateCache(String key, String value, String language, boolean broadcast) {
         Map<String, String> languageMap = languageCache.computeIfAbsent(language.toLowerCase(), k -> new HashMap<>());
         languageMap.put(key, value);
@@ -90,15 +100,16 @@ public class SQLLanguageService implements LanguageService {
 
     @Override
     public void delete(String key, String language) {
+        String statement = "DELETE FROM language WHERE key = ? AND language = ?";
         sql.getExecutor().execute(() -> {
             try (var connection = sql.getConnection()) {
-                try (var preparedStatement = connection.prepareStatement("DELETE FROM language WHERE key = ? AND language = ?")) {
+                try (var preparedStatement = connection.prepareStatement(statement)) {
                     preparedStatement.setString(1, key);
                     preparedStatement.setString(2, language.toLowerCase());
                     preparedStatement.execute();
                 }
             } catch (Exception e) {
-                throw new IllegalStateException("Failed to delete language", e);
+                throw new IllegalStateException("Failed to delete language key", e);
             }
             updateCache(key, null, language, true);
         });
@@ -106,9 +117,10 @@ public class SQLLanguageService implements LanguageService {
 
     @Override
     public CompletableFuture<Void> set(String key, String value, String language) {
+        String statement = "INSERT INTO language (key, text, language) VALUES (?, ?, ?) ON CONFLICT (key, language) DO UPDATE SET text = ?";
         return CompletableFuture.runAsync(() -> {
             try (var connection = sql.getConnection()) {
-                try (var preparedStatement = connection.prepareStatement("INSERT INTO language (key, text, language) VALUES (?, ?, ?) ON CONFLICT (key, language) DO UPDATE SET text = ?")) {
+                try (var preparedStatement = connection.prepareStatement(statement)) {
                     preparedStatement.setString(1, key);
                     preparedStatement.setString(2, value);
                     preparedStatement.setString(3, language.toLowerCase());
@@ -116,7 +128,7 @@ public class SQLLanguageService implements LanguageService {
                     preparedStatement.execute();
                 }
             } catch (Exception e) {
-                throw new IllegalStateException("Failed to save language", e);
+                throw new IllegalStateException("Failed to save language key", e);
             }
             updateCache(key, value, language, true);
         }, sql.getExecutor());

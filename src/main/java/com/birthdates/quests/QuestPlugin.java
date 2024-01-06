@@ -29,7 +29,6 @@ import java.nio.file.Files;
  * Plugin entry point
  */
 public class QuestPlugin extends JavaPlugin {
-
     private static QuestPlugin instance;
     private QuestDataService dataService;
     private SQLConnection sqlConnection;

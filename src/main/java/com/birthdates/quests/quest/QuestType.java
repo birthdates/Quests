@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
  * The action a quest requires
  */
 public enum QuestType {
-
     BREAK_BLOCKS,
     DO_DAMAGE,
     KILL_ENTITY;

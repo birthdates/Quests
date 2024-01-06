@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
 public class SelectButton extends ConfigButton {
-
     private final LanguageSelectMenu parent;
     private final String language;
 

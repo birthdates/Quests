@@ -24,14 +24,18 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.7.1'
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(19))
-}
-
 shadowJar {
     archiveBaseName.set("Quests-${project.version}")
     archiveClassifier.set('')
     archiveVersion.set('')
+}
+
+build {
+    dependsOn shadowJar
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 test {

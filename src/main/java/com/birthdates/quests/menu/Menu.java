@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
  * An abstract menu
  */
 public abstract class Menu {
-
     private static final ItemStack BORDER_ITEM = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
     protected final ConfigurationSection config;
     /**
