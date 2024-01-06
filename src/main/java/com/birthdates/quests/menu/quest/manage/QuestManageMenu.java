@@ -86,9 +86,8 @@ public class QuestManageMenu extends Menu {
     }
 
     private void changeTarget(Player player) {
-        InputService.awaitInput(player, "messages.quest.admin-change-target").thenAccept(target -> {
-            questConfig.saveQuest(quest.target(target));
-        });
+        InputService.awaitInput(player, "messages.quest.admin-change-target").thenAccept(target ->
+                questConfig.saveQuest(quest.target(target)));
     }
 
     private void changeRewards(Player player) {
@@ -110,6 +109,16 @@ public class QuestManageMenu extends Menu {
         player.sendMessage(component);
     }
 
+    private void changeExpiry(Player player) {
+        InputService.awaitInput(player, "messages.quest.admin-change-expiry").thenAccept(expiry ->
+                questConfig.saveQuest(quest.expiry(LanguageService.parseExpiry(expiry))));
+    }
+
+    private void changePermission(Player player) {
+        InputService.awaitInput(player, "messages.quest.admin-change-permission").thenAccept(permission ->
+                questConfig.saveQuest(quest.permission(permission)));
+    }
+
     @Override
     public String getTitle(Player player) {
         return super.getTitle(player).replaceAll("%id%", quest.id());
@@ -124,6 +133,8 @@ public class QuestManageMenu extends Menu {
                 .setPlaceholder("%target%", quest.target() == null ? any : LanguageService.formatID(quest.target()))
                 .setPlaceholder("%icon%", LanguageService.formatID(quest.icon().name()))
                 .setPlaceholder("%name%", quest.id())
+                .setPlaceholder("%permission%", quest.permission() == null ? any : quest.permission())
+                .setPlaceholder("%expiry%", LanguageService.formatExpiry(player, quest.expiry()))
                 .setPlaceholder("%rewards%", quest.rewardCommands());
         if (path.equalsIgnoreCase("icon")) {
             button.getItem().setType(quest.icon());
@@ -150,6 +161,12 @@ public class QuestManageMenu extends Menu {
             }
             case "rewards" -> {
                 return (player, slot, clickType) -> changeRewards(player);
+            }
+            case "expiry" -> {
+                return (player, slot, clickType) -> changeExpiry(player);
+            }
+            case "permission" -> {
+                return (player, slot, clickType) -> changePermission(player);
             }
         }
         return super.getAction(buttonPath);

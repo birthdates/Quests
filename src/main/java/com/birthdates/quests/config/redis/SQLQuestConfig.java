@@ -53,7 +53,7 @@ public class SQLQuestConfig implements QuestConfig {
                 throw new IllegalStateException("Failed to delete quest", e);
             }
 
-            QuestPlugin.getInstance().getUpdateListener().sendUpdate(id);
+            QuestPlugin.getInstance().getUpdateListener().sendQuestUpdate(id);
         });
     }
 
@@ -63,7 +63,8 @@ public class SQLQuestConfig implements QuestConfig {
 
     @Override
     public void saveQuest(Quest quest) {
-        String statement = "INSERT INTO quests (id, description, rewards, questtype, requiredamount, permission, icon, target) VALUES (?, ?, ?, ?, ? ,? ,? , ?) ON CONFLICT (id) DO UPDATE SET description = ?, rewards = ?, questtype = ?, requiredamount = ?, permission = ?, icon = ?, target = ?";
+        String statement = "INSERT INTO quests (id, description, rewards, questType, requiredAmount, permission, icon, target, expiry) VALUES (?, ?, ?, ?, ?, ? ,? ,? , ?) ON CONFLICT (id) DO UPDATE SET description = ?, rewards = ?, questtype = ?, requiredamount = ?, permission = ?, icon = ?, target = ?, expiry = ?";
+        questCache.put(quest.id(), quest);
         sql.getExecutor().execute(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
@@ -76,19 +77,21 @@ public class SQLQuestConfig implements QuestConfig {
                     preparedStatement.setString(6, quest.permission());
                     preparedStatement.setString(7, quest.icon().name());
                     preparedStatement.setString(8, quest.target());
-                    preparedStatement.setString(9, quest.description());
-                    preparedStatement.setArray(10, commands);
-                    preparedStatement.setInt(11, quest.type().ordinal());
-                    preparedStatement.setBigDecimal(12, quest.requiredAmount());
-                    preparedStatement.setString(13, quest.permission());
-                    preparedStatement.setString(14, quest.icon().name());
-                    preparedStatement.setString(15, quest.target());
+                    preparedStatement.setLong(9, quest.expiry());
+                    preparedStatement.setString(10, quest.description());
+                    preparedStatement.setArray(11, commands);
+                    preparedStatement.setInt(12, quest.type().ordinal());
+                    preparedStatement.setBigDecimal(13, quest.requiredAmount());
+                    preparedStatement.setString(14, quest.permission());
+                    preparedStatement.setString(15, quest.icon().name());
+                    preparedStatement.setString(16, quest.target());
+                    preparedStatement.setLong(17, quest.expiry());
                     preparedStatement.execute();
                 }
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to save quest", e);
             }
-            QuestPlugin.getInstance().getUpdateListener().sendUpdate(quest.id());
+            QuestPlugin.getInstance().getUpdateListener().sendQuestUpdate(quest.id());
         });
     }
 
@@ -107,7 +110,8 @@ public class SQLQuestConfig implements QuestConfig {
         String permission = resultSet.getString("permission");
         String icon = resultSet.getString("icon");
         String target = resultSet.getString("target");
-        Quest quest = new Quest(id, Material.valueOf(icon), target, permission, questType, requiredAmount, rewardCommands, description);
+        long expiry = resultSet.getLong("expiry");
+        Quest quest = new Quest(id, Material.valueOf(icon), target, permission, questType, requiredAmount, rewardCommands, description, expiry);
         questCache.put(id, quest);
         return quest;
     }

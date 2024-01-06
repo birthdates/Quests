@@ -9,6 +9,7 @@ import com.birthdates.quests.sql.SQLConnection;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SQLQuestDataService extends QuestDataService {
@@ -21,9 +22,9 @@ public class SQLQuestDataService extends QuestDataService {
     }
 
     @Override
-    public void loadPlayerData(UUID playerId) {
+    public CompletableFuture<Void> loadPlayerData(UUID playerId) {
         String statement = "SELECT * FROM quest_progress WHERE userId = ?";
-        sql.getExecutor().execute(() -> {
+        return CompletableFuture.runAsync(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
                     preparedStatement.setObject(1, playerId);
@@ -32,15 +33,16 @@ public class SQLQuestDataService extends QuestDataService {
                             String questId = resultSet.getString("questId");
                             BigDecimal value = resultSet.getBigDecimal("value");
                             int status = resultSet.getInt("status");
+                            long expiry = resultSet.getLong("expiry");
                             userQuestProgress.computeIfAbsent(playerId, uuid -> new ConcurrentHashMap<>())
-                                    .put(questId, new QuestProgress(value, QuestStatus.values()[status]));
+                                    .put(questId, new QuestProgress(value, QuestStatus.values()[status], expiry));
                         }
                     }
                 }
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to load quest progress", e);
             }
-        });
+        }, sql.getExecutor());
     }
 
     @Override
@@ -61,7 +63,7 @@ public class SQLQuestDataService extends QuestDataService {
 
     @Override
     protected void saveProgress(UUID playerId, String questId, QuestProgress progress) {
-        String statement = "INSERT INTO quest_progress (userId, questId, value, status) VALUES (?, ?, ?, ?) ON CONFLICT (userId, questId) DO UPDATE SET value = ?, status = ?";
+        String statement = "INSERT INTO quest_progress (userId, questId, value, status, expiry) VALUES (?, ?, ?, ?, ?) ON CONFLICT (userId, questId) DO UPDATE SET value = ?, status = ?, expiry = ?";
         sql.getExecutor().execute(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
@@ -69,8 +71,10 @@ public class SQLQuestDataService extends QuestDataService {
                     preparedStatement.setString(2, questId);
                     preparedStatement.setBigDecimal(3, progress.amount());
                     preparedStatement.setInt(4, progress.status().ordinal());
-                    preparedStatement.setBigDecimal(5, progress.amount());
-                    preparedStatement.setInt(6, progress.status().ordinal());
+                    preparedStatement.setLong(5, progress.expiry());
+                    preparedStatement.setBigDecimal(6, progress.amount());
+                    preparedStatement.setInt(7, progress.status().ordinal());
+                    preparedStatement.setLong(8, progress.expiry());
                     preparedStatement.execute();
                 }
             } catch (Exception e) {

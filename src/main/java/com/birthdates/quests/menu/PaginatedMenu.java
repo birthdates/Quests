@@ -8,7 +8,13 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Abstract menu with pagination
+ */
 public abstract class PaginatedMenu extends Menu {
+    /**
+     * Slots used for the buttons
+     */
     private final List<Integer> slots;
     private int page;
 
@@ -21,6 +27,7 @@ public abstract class PaginatedMenu extends Menu {
     protected void loadButtons(Player player) {
         super.loadButtons(player);
 
+        // Load buttons for current page
         int start = page * slots.size();
         int end = Math.min(start + slots.size(), getTotalButtons());
         for (int i = start; i < end; i++) {
@@ -32,31 +39,55 @@ public abstract class PaginatedMenu extends Menu {
             buttons.put(slot, button);
         }
 
+        // Load next/previous buttons
         buttons.put(getNextSlot(), new ConfigButton(menuService.getMenuConfig().getConfigurationSection("Format.Next-Page"),
                 player, (target, slot, clickType) -> goNextPage(target)));
         buttons.put(getBackSlot(), new ConfigButton(menuService.getMenuConfig().getConfigurationSection("Format.Previous-Page"),
                 player, (target, slot, clickType) -> goBackPage(target)));
     }
 
+    /**
+     * Get the inventory size for a given set of buttons ignoring config slots
+     *
+     * @param buttons Buttons in the menu
+     * @return Inventory size (in multiples of 9)
+     */
     @Override
-    public int getRows(NavigableMap<Integer, ?> buttons) {
+    public int getSlots(NavigableMap<Integer, ?> buttons) {
         if (slots.isEmpty()) {
             return 9;
         }
         return getInventorySize(slots.get(slots.size() - 1));
     }
 
+    /**
+     * Get the slot for the next page button
+     *
+     * @return Next page slot
+     */
     protected int getNextSlot() {
         return getSlots() - 4;
     }
 
+    /**
+     * Get the slot for the previous page button
+     *
+     * @return Previous page slot
+     */
     protected int getBackSlot() {
         return getSlots() - 6;
     }
 
+    /**
+     * Get the button for a specific index
+     *
+     * @param player Target player
+     * @param index Index of the button (not a slot but index in a list of data, see {@link PaginatedMenu#getTotalButtons()})
+     * @return {@link MenuButton} for the index
+     */
     protected abstract MenuButton getButton(Player player, int index);
 
-    public int getPage() {
+    public int getCurrentPage() {
         return page;
     }
 
@@ -82,5 +113,10 @@ public abstract class PaginatedMenu extends Menu {
         return (int) Math.ceil(getTotalButtons() / (double) slots.size());
     }
 
+    /**
+     * Get the total number of buttons in the menu (on every page)
+     *
+     * @return Total number of buttons
+     */
     public abstract int getTotalButtons();
 }

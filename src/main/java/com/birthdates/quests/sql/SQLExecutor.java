@@ -6,6 +6,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Executor for SQL tasks (will print errors to given logger)
+ */
 public class SQLExecutor extends ThreadPoolExecutor {
 
     private final Logger logger;

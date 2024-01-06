@@ -29,6 +29,8 @@ public class QuestButton extends ConfigButton {
                 .setPlaceholder("%required%", LanguageService.formatNumber(quest.requiredAmount()))
                 .setPlaceholder("%target%", quest.target() == null ? any : LanguageService.formatID(quest.target()))
                 .setPlaceholder("%progress%", LanguageService.formatNumber(progress.amount()))
+                .setPlaceholder("%expiry%", LanguageService.formatExpiry(player, progress.expiry()-System.currentTimeMillis()))
+                .setPlaceholder("%permission%", quest.permission() == null ? any : quest.permission())
                 .setPlaceholder("%progress_bar%", LanguageService.createProgressBar(percent));
         this.parent = parent;
         this.quest = quest;

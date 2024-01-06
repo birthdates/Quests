@@ -1,10 +1,5 @@
 package com.birthdates.quests.command;
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Subcommand;
 import com.birthdates.quests.config.QuestConfig;
 import com.birthdates.quests.data.QuestDataService;
 import com.birthdates.quests.input.InputService;
@@ -13,12 +8,15 @@ import com.birthdates.quests.menu.Menu;
 import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.menu.quest.main.QuestMenu;
 import com.birthdates.quests.quest.Quest;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-@CommandAlias("quest|quests|q")
-public class QuestCommand extends BaseCommand {
+public class QuestCommand implements CommandExecutor {
 
     private final QuestConfig questConfig;
     private final LanguageService languageService;
@@ -32,24 +30,11 @@ public class QuestCommand extends BaseCommand {
         this.dataService = dataService;
     }
 
-    @Default
-    public void openMenu(Player player) {
-        openMenu(player, false);
-    }
-
     private void openMenu(Player player, boolean admin) {
         Menu menu = new QuestMenu(menuService, dataService, questConfig, admin);
         menuService.openMenu(player, menu);
     }
 
-    @Subcommand("admin")
-    @CommandPermission("quests.admin")
-    public void onAdmin(Player player) {
-        openMenu(player, true);
-    }
-
-    @Subcommand("remove-reward")
-    @CommandPermission("quests.admin")
     public void onRemoveReward(Player player, String questId, int index) {
         Quest quest = questConfig.getQuest(questId);
         if (quest == null || quest.rewardCommands().size() <= index) {
@@ -64,8 +49,6 @@ public class QuestCommand extends BaseCommand {
         player.sendMessage(LanguageService.color(msg));
     }
 
-    @Subcommand("add-reward")
-    @CommandPermission("quests.admin")
     public void onAddReward(Player player, String questId) {
         Quest quest = questConfig.getQuest(questId);
         if (quest == null) {
@@ -80,5 +63,36 @@ public class QuestCommand extends BaseCommand {
             String msg = languageService.get("messages.quest.admin-added-reward", player);
             player.sendMessage(LanguageService.color(msg));
         });
+    }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!(sender instanceof Player player)) {
+            return false;
+        }
+
+        if (args.length >= 1 && player.hasPermission("quests.admin")) {
+            switch (args[0].toLowerCase()) {
+                case "admin":
+                    openMenu(player, true);
+                    return false;
+                case "remove-reward":
+                    if (args.length <= 2) {
+                        return false;
+                    }
+                    try {
+                        int index = Integer.parseInt(args[2]);
+                        onRemoveReward(player, args[1], index);
+                    } catch (NumberFormatException ignored) {
+                    }
+                    return false;
+                case "add-reward":
+                    onAddReward(player, args[1]);
+                    return false;
+            }
+        }
+
+        openMenu(player, false);
+        return false;
     }
 }

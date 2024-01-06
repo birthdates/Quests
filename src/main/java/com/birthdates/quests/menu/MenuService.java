@@ -13,8 +13,14 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 
+/**
+ * Service to handle menu logic
+ */
 public class MenuService implements Listener {
     private final Map<UUID, Menu> inMenu = new HashMap<>();
+    /**
+     * Used to prevent the menu from closing when opening a new one
+     */
     private final Set<UUID> exemptClose = new HashSet<>();
     private final Set<Menu> markedForUpdate = new HashSet<>();
     private final YamlConfiguration menuConfig;
@@ -24,6 +30,12 @@ public class MenuService implements Listener {
         Bukkit.getScheduler().runTaskTimer(plugin, this::updateMenus, 20L, 20L);
     }
 
+    /**
+     * Open a menu for a player
+     *
+     * @param player Target player
+     * @param menu Menu to open
+     */
     public void openMenu(Player player, Menu menu) {
         if (inMenu.containsKey(player.getUniqueId())) {
             exemptClose.add(player.getUniqueId());
@@ -33,18 +45,37 @@ public class MenuService implements Listener {
         menu.open(player);
     }
 
+    /**
+     * Mark a menu for update (temporary buttons)
+     *
+     * @param menu Menu to update
+     */
     protected void markForUpdate(Menu menu) {
         markedForUpdate.add(menu);
     }
 
+    /**
+     * Update all menus that have temporary buttons
+     */
     private void updateMenus() {
         markedForUpdate.removeIf(Menu::checkTemporaryButtons);
     }
 
+    /**
+     * Get the menu a player is currently in
+     *
+     * @param player Target player
+     * @return Menu the player is in
+     */
     public Menu getMenu(Player player) {
         return inMenu.get(player.getUniqueId());
     }
 
+    /**
+     * Prevent a menu from closing when opening a new one
+     *
+     * @param player Target player
+     */
     public void exemptClose(UUID player) {
         exemptClose.add(player);
     }
@@ -56,6 +87,8 @@ public class MenuService implements Listener {
         if (menu == null || exemptClose.remove(player.getUniqueId())) {
             return;
         }
+
+        // Handle menu close
         menu.onClosed(player);
         markedForUpdate.remove(menu);
         inMenu.remove(player.getUniqueId());
@@ -71,11 +104,10 @@ public class MenuService implements Listener {
         Player player = (Player) event.getWhoClicked();
         Menu menu = inMenu.get(player.getUniqueId());
         if (menu == null || event.getClickedInventory() != player.getOpenInventory().getTopInventory()) {
-            System.out.println(menu);
             return;
         }
 
-
+        // Handle menu button click
         event.setCancelled(true);
         MenuButton button = menu.getButton(event.getSlot());
         if (button != null) {
@@ -83,6 +115,11 @@ public class MenuService implements Listener {
         }
     }
 
+    /**
+     * Get the {@link YamlConfiguration} used for menus
+     *
+     * @return {@link YamlConfiguration} for menus
+     */
     public YamlConfiguration getMenuConfig() {
         return menuConfig;
     }

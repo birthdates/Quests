@@ -1,0 +1,45 @@
+package com.birthdates.quests.config.redis;
+
+import com.birthdates.quests.config.QuestConfig;
+import com.birthdates.quests.quest.Quest;
+import com.birthdates.quests.quest.QuestType;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class MockQuestConfig implements QuestConfig {
+    private final Map<String, Quest> memoryCache = new HashMap<>();
+
+
+    @Override
+    public void createQuest(String id, QuestType questType) {
+        Quest quest = new Quest(id, questType);
+        memoryCache.put(id, quest);
+    }
+
+    @Override
+    public void deleteQuest(String id) {
+        memoryCache.remove(id);
+    }
+
+    @Override
+    public void saveQuest(Quest quest) {
+        memoryCache.put(quest.id(), quest);
+    }
+
+    @Override
+    public void invalidate(String id) {
+
+    }
+
+    @Override
+    public List<Quest> getAllQuests() {
+        return memoryCache.values().stream().toList();
+    }
+
+    @Override
+    public Quest getQuest(String id) {
+        return memoryCache.get(id);
+    }
+}

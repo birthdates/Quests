@@ -10,6 +10,9 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.math.BigDecimal;
 
+/**
+ * Listeners for specific {@link QuestType} events
+ */
 public class QuestListener implements Listener {
 
     private final QuestDataService dataService;
@@ -20,12 +23,12 @@ public class QuestListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        dataService.increaseProgress(event.getPlayer().getUniqueId(), QuestType.BREAK_BLOCKS, BigDecimal.ONE, event.getBlock().getType().name());
+        dataService.incrementProgress(event.getPlayer().getUniqueId(), QuestType.BREAK_BLOCKS, event.getBlock().getType().name());
     }
 
     @EventHandler
     public void onDamageDealt(EntityDamageByEntityEvent event) {
-        dataService.increaseProgress(event.getDamager().getUniqueId(), QuestType.DO_DAMAGE, BigDecimal.ONE, event.getEntity().getType().name());
+        dataService.increaseProgress(event.getDamager().getUniqueId(), QuestType.DO_DAMAGE, BigDecimal.valueOf(event.getDamage()), event.getEntity().getType().name());
     }
 
     @EventHandler
@@ -34,6 +37,6 @@ public class QuestListener implements Listener {
         if (killer == null) {
             return;
         }
-        dataService.increaseProgress(killer.getUniqueId(), QuestType.KILL_ENTITY, BigDecimal.ONE, event.getEntity().getType().name());
+        dataService.incrementProgress(killer.getUniqueId(), QuestType.KILL_ENTITY, event.getEntity().getType().name());
     }
 }

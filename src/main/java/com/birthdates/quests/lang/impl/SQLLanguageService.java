@@ -23,17 +23,6 @@ public class SQLLanguageService implements LanguageService {
         }
     }
 
-    private void loadDefaultLang(YamlConfiguration defaultLang) {
-        for (String language : defaultLang.getKeys(false)) {
-            for (String key : defaultLang.getConfigurationSection(language).getKeys(true)) {
-                if (!defaultLang.isString(language + "." + key)) {
-                    continue;
-                }
-                set(key, defaultLang.getString(language + "." + key), language);
-            }
-        }
-    }
-
     private void loadData() {
         try (var connection = sql.getConnection()) {
             try (var preparedStatement = connection.prepareStatement("SELECT * FROM language")) {

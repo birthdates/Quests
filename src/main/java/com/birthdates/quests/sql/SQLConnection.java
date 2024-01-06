@@ -4,14 +4,19 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.sql.DataSource;
+import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+/**
+ * SQL connection pool
+ */
 public class SQLConnection {
 
-    private final HikariDataSource hikari;
+    private final DataSource hikari;
     private final Executor executor;
 
     public SQLConnection(Logger logger, ConfigurationSection config) {
@@ -19,6 +24,7 @@ public class SQLConnection {
             throw new IllegalStateException("Expected sql section in config, not found");
         }
 
+        // Setup executor and connection pool (create default tables as well)
         executor = new SQLExecutor(logger);
         HikariConfig hikariConfig = new HikariConfig();
         String server = config.getString("Host");
@@ -39,10 +45,29 @@ public class SQLConnection {
     }
 
     public void unload() {
-        hikari.close();
+        if (hikari instanceof AutoCloseable closeable) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
+    /**
+     * Try to create default tables
+     */
     private void createTables() {
+        String progressTable = """
+                CREATE TABLE IF NOT EXISTS quest_progress (
+                    userId UUID,
+                    questId VARCHAR(32),
+                    value NUMERIC,
+                    expiry BIGINT,
+                    status INTEGER DEFAULT 0,
+                    PRIMARY KEY (userId, questId)
+                )
+                """;
         String questTable = """
                 CREATE TABLE IF NOT EXISTS quests (
                   id VARCHAR(32) PRIMARY KEY,
@@ -52,16 +77,8 @@ public class SQLConnection {
                   permission VARCHAR(32) DEFAULT NULL,
                   icon VARCHAR(32) DEFAULT NULL,
                   target VARCHAR(32) DEFAULT NULL,
+                  expiry BIGINT DEFAULT -1,
                   rewards TEXT []
-                )
-                """;
-        String progressTable = """
-                CREATE TABLE IF NOT EXISTS quest_progress (
-                    userId UUID,
-                    questId VARCHAR(32),
-                    value NUMERIC,
-                    status INTEGER DEFAULT 0,
-                    PRIMARY KEY (userId, questId)
                 )
                 """;
         String languageTable = """
@@ -81,10 +98,21 @@ public class SQLConnection {
         }
     }
 
+    /**
+     * Get connection from pool
+     *
+     * @return {@link  Connection}
+     * @throws SQLException if connection fails
+     */
     public Connection getConnection() throws SQLException {
         return hikari.getConnection();
     }
 
+    /**
+     * Get executor for async queries
+     *
+     * @return {@link Executor}
+     */
     public Executor getExecutor() {
         return executor;
     }

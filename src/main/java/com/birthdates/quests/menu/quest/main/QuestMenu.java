@@ -70,7 +70,8 @@ public class QuestMenu extends PaginatedMenu {
         InputService.awaitInput(player, "messages.quest.create-admin-id")
                 .thenAccept(id -> {
                     QuestType.showQuestTypes(player);
-                    InputService.awaitInput(player, null).thenAccept(type -> createQuest(player, id, type));
+                    InputService.awaitInput(player, null).thenAccept(type ->
+                            createQuest(player, id, type));
                 });
     }
 
