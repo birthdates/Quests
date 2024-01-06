@@ -206,6 +206,12 @@ public abstract class QuestDataService implements Listener {
                 .compute(questId, (s, bigDecimal) -> bigDecimal == null ? amount : bigDecimal.add(amount));
     }
 
+    /**
+     * Load a player's quest data
+     *
+     * @param playerId Player to load
+     * @return Future to be completed when the data is loaded
+     */
     public abstract CompletableFuture<Void> loadPlayerData(UUID playerId);
 
     public abstract void deleteProgress(UUID playerId, String questId);

@@ -4,13 +4,16 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.WorldMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import com.birthdates.quests.quest.QuestProgress;
 import com.birthdates.quests.quest.QuestStatus;
 import com.birthdates.quests.quest.QuestType;
+import com.birthdates.quests.util.LocaleUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class QuestDataServiceTests {
 
@@ -31,17 +34,26 @@ public class QuestDataServiceTests {
     }
 
     private void createTestQuest() {
-        createTestQuest(QuestType.values()[0]);
+        createTestQuest(QuestType.values()[0], "perm");
     }
 
-    private void createTestQuest(QuestType type) {
+    private void createTestQuest(QuestType type, String expiry) {
         PlayerMock player = server.addPlayer();
         player.setOp(true);
+
+        // Create quest
         player.performCommand("quest admin");
         player.simulateInventoryClick(4);
         player.chat("test");
         TestUtil.waitTick();
         player.chat(type.name());
+        TestUtil.waitTick();
+
+        // Set expiry
+        player.performCommand("quest admin");
+        player.simulateInventoryClick(10);
+        player.simulateInventoryClick(40);
+        player.chat(expiry);
         TestUtil.waitTick();
     }
 
@@ -68,7 +80,7 @@ public class QuestDataServiceTests {
         WorldMock worldMock = server.addSimpleWorld("world");
         for (QuestType value : QuestType.values()) {
             testActivation();
-            createTestQuest(value);
+            createTestQuest(value, "perm");
             switch (value) {
                 case BREAK_BLOCKS -> player.simulateBlockBreak(worldMock.getBlockAt(0, 0, 0));
 
@@ -82,10 +94,39 @@ public class QuestDataServiceTests {
             }
 
             questPlugin.getDataService().saveProgress();
-            TestUtil.waitTick();
+            server.getScheduler().waitAsyncTasksFinished();
             assertEquals(QuestStatus.COMPLETED,
                     questPlugin.getDataService().getProgress(player.getUniqueId(), "test").status());
             questPlugin.getDataService().invalidateQuestData(player.getUniqueId());
         }
+    }
+
+    @Test
+    public void testAlerts() {
+        testActivation();
+        server.addPlayer(player);
+        String message = player.nextMessage();
+        String expected = questPlugin.getLanguageService().get("messages.quest.active-quests", player.locale().getLanguage());
+        assertEquals(LocaleUtil.color(expected), message);
+    }
+
+    @Test
+    public void testExpiredQuest() {
+        createTestQuest(QuestType.values()[0], "1s");
+
+        // Activate quest
+        player.performCommand("quest");
+        player.simulateInventoryClick(10);
+
+        // Check quest is active
+        QuestProgress progress = questPlugin.getDataService().getProgress(player.getUniqueId(), "test");
+        assertEquals(QuestStatus.IN_PROGRESS, progress.status());
+
+        // Wait for quest to expire
+        TestUtil.waitFor(1000L);
+
+        // Check quest is expired
+        progress = questPlugin.getDataService().getProgress(player.getUniqueId(), "test");
+        assertTrue(progress.isExpired() || progress.status() == QuestStatus.NOT_STARTED);
     }
 }

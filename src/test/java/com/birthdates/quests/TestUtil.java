@@ -3,8 +3,12 @@ package com.birthdates.quests;
 public class TestUtil {
 
     public static void waitTick() {
+        waitFor(50);
+    }
+
+    public static void waitFor(long ms) {
         try {
-            Thread.sleep(50);
+            Thread.sleep(ms);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
