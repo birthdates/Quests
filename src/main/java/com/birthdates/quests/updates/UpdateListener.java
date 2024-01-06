@@ -67,7 +67,7 @@ public class UpdateListener {
     }
 
     /**
-     * Send a quest update to the redis server
+     * Send a quest update to the redis pub sub
      *
      * @param questID The quest ID
      */
@@ -76,7 +76,7 @@ public class UpdateListener {
     }
 
     /**
-     * Send a specific update to the redis server
+     * Send a specific update to the redis pub sub
      *
      * @param channel Update type
      * @param key     Update key (what to update)

@@ -51,7 +51,7 @@ public abstract class QuestDataService implements Listener {
      */
     private void checkExpiredQuests() {
         userQuestProgress.forEach((id, data) -> data.entrySet().removeIf(entry -> {
-            if (!entry.getValue().isExpired()) {
+            if (entry.getValue().isNotExpired()) {
                 return false;
             }
             deleteProgress(id, entry.getKey());
@@ -75,7 +75,7 @@ public abstract class QuestDataService implements Listener {
             return "No_Quest_Permission";
         }
         Map<String, QuestProgress> activeQuests = userQuestProgress.computeIfAbsent(player.getUniqueId(), uuid -> new ConcurrentHashMap<>());
-        if (activeQuests.size() >= maxActiveQuests) {
+        if (activeQuests.values().stream().filter(QuestProgress::isInProgress).count() >= maxActiveQuests) {
             return "Max_Quests_Active";
         }
         long expiry = quest.expiry() < 0 ? -1 : System.currentTimeMillis() + quest.expiry();
@@ -138,7 +138,7 @@ public abstract class QuestDataService implements Listener {
         for (Map.Entry<String, BigDecimal> entry : questProgress.entrySet()) {
             Quest quest = questConfig.getQuest(entry.getKey());
             QuestProgress progress = progressMap.computeIfAbsent(entry.getKey(), s -> QuestProgress.NOT_STARTED).add(entry.getValue());
-            if (!progress.isExpired() && progress.status() == QuestStatus.IN_PROGRESS && progress.amount().compareTo(quest.requiredAmount()) >= 0) {
+            if (progress.isInProgress() && progress.amount().compareTo(quest.requiredAmount()) >= 0) {
                 progress = progress.status(QuestStatus.COMPLETED);
                 Bukkit.getScheduler().runTask(QuestPlugin.getInstance(), () -> onQuestFinished(userID, quest));
             }

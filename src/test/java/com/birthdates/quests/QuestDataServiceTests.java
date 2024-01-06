@@ -12,8 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class QuestDataServiceTests {
 
@@ -85,10 +84,7 @@ public class QuestDataServiceTests {
                 case BREAK_BLOCKS -> player.simulateBlockBreak(worldMock.getBlockAt(0, 0, 0));
 
                 // Unsupported:
-                case DO_DAMAGE -> {
-                    return;
-                }
-                case KILL_ENTITY -> {
+                case DO_DAMAGE, KILL_ENTITY -> {
                     return;
                 }
             }
@@ -127,6 +123,6 @@ public class QuestDataServiceTests {
 
         // Check quest is expired
         progress = questPlugin.getDataService().getProgress(player.getUniqueId(), "test");
-        assertTrue(progress.isExpired() || progress.status() == QuestStatus.NOT_STARTED);
+        assertFalse(progress.isInProgress());
     }
 }

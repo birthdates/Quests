@@ -92,7 +92,6 @@ public class QuestPlugin extends JavaPlugin {
             dataService = new SQLQuestDataService(questConfig, getConfig().getInt("Max-Active-Quests"), sqlConnection);
         }
 
-
         // Register events and commands
         Bukkit.getPluginManager().registerEvents(new QuestListener(dataService), this);
         Bukkit.getPluginManager().registerEvents(new InputService(), this);

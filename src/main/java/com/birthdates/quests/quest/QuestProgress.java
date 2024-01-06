@@ -28,8 +28,17 @@ public record QuestProgress(BigDecimal amount, QuestStatus status, long expiry) 
      *
      * @return Whether the quest has expired (will always return false if permanent)
      */
-    public boolean isExpired() {
-        return expiry > 0 && System.currentTimeMillis() > expiry;
+    public boolean isNotExpired() {
+        return expiry <= 0 || System.currentTimeMillis() <= expiry;
+    }
+
+    /**
+     * Check if the quest is in progress (not expired)
+     *
+     * @return Whether the quest is in progress
+     */
+    public boolean isInProgress() {
+        return isNotExpired() && status == QuestStatus.IN_PROGRESS;
     }
 }
 
