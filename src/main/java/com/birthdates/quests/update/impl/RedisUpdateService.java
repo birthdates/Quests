@@ -2,7 +2,7 @@ package com.birthdates.quests.update.impl;
 
 import com.birthdates.quests.config.QuestConfig;
 import com.birthdates.quests.lang.LanguageService;
-import com.birthdates.quests.update.UpdateListener;
+import com.birthdates.quests.update.UpdateService;
 import org.bukkit.configuration.ConfigurationSection;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -12,12 +12,12 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 /**
  * Listener for updates to the quest config and language (using Redis pub sub)
  */
-public class RedisUpdateListener extends UpdateListener {
+public class RedisUpdateService extends UpdateService {
     private final JedisPool jedisPool;
     private final ConfigurationSection redisConfig;
     private final Jedis jedis;
 
-    public RedisUpdateListener(QuestConfig config, ConfigurationSection redisConfig, LanguageService languageService) {
+    public RedisUpdateService(QuestConfig config, ConfigurationSection redisConfig, LanguageService languageService) {
         super(config, languageService);
         if (redisConfig == null) {
             throw new IllegalStateException("Expected redis section in config, not found");

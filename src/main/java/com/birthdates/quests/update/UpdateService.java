@@ -6,12 +6,12 @@ import com.birthdates.quests.lang.LanguageService;
 /**
  * Abstract listener for updates cross-server (quest config & language)
  */
-public abstract class UpdateListener {
+public abstract class UpdateService {
 
     private final QuestConfig questConfig;
     private final LanguageService languageService;
 
-    public UpdateListener(QuestConfig config, LanguageService languageService) {
+    public UpdateService(QuestConfig config, LanguageService languageService) {
         this.questConfig = config;
         this.languageService = languageService;
     }

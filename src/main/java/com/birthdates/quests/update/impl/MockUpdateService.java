@@ -2,13 +2,13 @@ package com.birthdates.quests.update.impl;
 
 import com.birthdates.quests.config.QuestConfig;
 import com.birthdates.quests.lang.LanguageService;
-import com.birthdates.quests.update.UpdateListener;
+import com.birthdates.quests.update.UpdateService;
 
 /**
  * Mock update listener for testing
  */
-public class MockUpdateListener extends UpdateListener {
-    public MockUpdateListener(QuestConfig config, LanguageService languageService) {
+public class MockUpdateService extends UpdateService {
+    public MockUpdateService(QuestConfig config, LanguageService languageService) {
         super(config, languageService);
     }
 

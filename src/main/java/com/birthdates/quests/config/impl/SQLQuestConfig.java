@@ -25,7 +25,7 @@ public class SQLQuestConfig implements QuestConfig {
     }
 
     private static void broadcastQuestUpdate(String id) {
-        QuestPlugin.getInstance().getUpdateListener().sendUpdate("QUEST_CONFIG", id);
+        QuestPlugin.getInstance().getUpdateService().sendUpdate("QUEST_CONFIG", id);
     }
 
     private void loadData() {

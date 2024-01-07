@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Executor for SQL tasks (will print errors to given logger)
+ * Executor that will log any exceptions thrown by tasks
  */
 public class VerboseExecutor extends ScheduledThreadPoolExecutor {
     private final Logger logger;

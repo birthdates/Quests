@@ -8,15 +8,14 @@ group = 'com.birthdates'
 version = '1.0.0'
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
     maven { url 'https://repo.papermc.io/repository/maven-public/' }
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/public/' }
 }
 
 dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.1'
-    testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:dev-a3c55794'
+    testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:+'
 
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     implementation group: 'redis.clients', name: 'jedis', version: '5.1.0'

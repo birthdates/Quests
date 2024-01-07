@@ -94,7 +94,7 @@ public class SQLLanguageService implements LanguageService {
         Map<String, String> languageMap = languageCache.computeIfAbsent(language.toLowerCase(), k -> new HashMap<>());
         languageMap.put(key, value);
         if (broadcast) {
-            QuestPlugin.getInstance().getUpdateListener().sendUpdate(language, key);
+            QuestPlugin.getInstance().getUpdateService().sendUpdate(language, key);
         }
     }
 

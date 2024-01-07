@@ -44,9 +44,9 @@ public abstract class QuestDataService implements Listener {
 
     public QuestDataService(Logger logger, QuestConfig questConfig, int maxActiveQuests) {
         this.service = new VerboseExecutor(logger);
-        service.scheduleAtFixedRate(this::saveAllProgress, 0, 5, java.util.concurrent.TimeUnit.SECONDS);
         this.questConfig = questConfig;
         this.maxActiveQuests = maxActiveQuests;
+        service.scheduleAtFixedRate(this::saveAllProgress, 0, 5, java.util.concurrent.TimeUnit.SECONDS);
         service.scheduleAtFixedRate(this::checkExpiredQuests, 0, 1, TimeUnit.SECONDS);
     }
 

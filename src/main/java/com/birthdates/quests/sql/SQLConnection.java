@@ -44,12 +44,13 @@ public class SQLConnection {
     }
 
     public void unload() {
-        if (hikari instanceof AutoCloseable closeable) {
-            try {
-                closeable.close();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        if (!(hikari instanceof AutoCloseable closeable)) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

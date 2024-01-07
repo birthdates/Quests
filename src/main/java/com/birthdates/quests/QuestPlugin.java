@@ -15,9 +15,9 @@ import com.birthdates.quests.lang.impl.SQLLanguageService;
 import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.quest.QuestListener;
 import com.birthdates.quests.sql.SQLConnection;
-import com.birthdates.quests.update.UpdateListener;
-import com.birthdates.quests.update.impl.MockUpdateListener;
-import com.birthdates.quests.update.impl.RedisUpdateListener;
+import com.birthdates.quests.update.UpdateService;
+import com.birthdates.quests.update.impl.MockUpdateService;
+import com.birthdates.quests.update.impl.RedisUpdateService;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,7 +35,7 @@ public class QuestPlugin extends JavaPlugin {
     private QuestDataService dataService;
     private SQLConnection sqlConnection;
     private LanguageService languageService;
-    private UpdateListener updateListener;
+    private UpdateService updateService;
     private MenuService menuService;
     private QuestConfig questConfig;
 
@@ -86,9 +86,9 @@ public class QuestPlugin extends JavaPlugin {
 
         // Load update listener
         if (testEnvironment) {
-            updateListener = new MockUpdateListener(questConfig, languageService);
+            updateService = new MockUpdateService(questConfig, languageService);
         } else {
-            updateListener = new RedisUpdateListener(questConfig, getConfig().getConfigurationSection("Redis"), languageService);
+            updateService = new RedisUpdateService(questConfig, getConfig().getConfigurationSection("Redis"), languageService);
         }
 
         menuService = new MenuService(this, getConfig("menus.yml"));
@@ -132,7 +132,7 @@ public class QuestPlugin extends JavaPlugin {
     }
 
     public void onDisable() {
-        updateListener.unload();
+        updateService.unload();
         dataService.unload();
         if (sqlConnection != null)
             sqlConnection.unload();
@@ -146,10 +146,10 @@ public class QuestPlugin extends JavaPlugin {
     /**
      * Get the update listener (used for receiving and sending updates to other server instances)
      *
-     * @return {@link UpdateListener}
+     * @return {@link UpdateService}
      */
-    public UpdateListener getUpdateListener() {
-        return updateListener;
+    public UpdateService getUpdateService() {
+        return updateService;
     }
 
     public LanguageService getLanguageService() {
