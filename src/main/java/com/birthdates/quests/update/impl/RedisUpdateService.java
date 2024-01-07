@@ -52,7 +52,12 @@ public class RedisUpdateService extends UpdateService {
      * @return {@link Jedis}
      */
     private Jedis getJedis() {
-        Jedis jedis = jedisPool.getResource();
+        Jedis jedis;
+        try {
+            jedis = jedisPool.getResource();
+        } catch (JedisConnectionException exception) {
+            throw new IllegalStateException("Failed to connect to Redis server", exception);
+        }
         String password = redisConfig.getString("Password");
         int database = redisConfig.getInt("Database");
         if (password != null && !password.isBlank()) jedis.auth(password);

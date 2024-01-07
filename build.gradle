@@ -14,12 +14,12 @@ repositories {
 }
 
 dependencies {
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:+'
 
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-    implementation group: 'redis.clients', name: 'jedis', version: '5.1.0'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.1.0'
+    compileOnly 'io.papermc.paper:paper-api:1.20.+'
+    implementation 'redis.clients:jedis:5.1.0'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
     implementation 'org.postgresql:postgresql:42.7.1'
 }
 
