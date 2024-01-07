@@ -60,7 +60,7 @@ public abstract class QuestDataService implements Listener {
      */
     private void checkExpiredQuests() {
         userQuestProgress.forEach((id, data) -> data.entrySet().removeIf(entry -> {
-            if (entry.getValue().isNotExpired()) {
+            if (!entry.getValue().isInProgress() || entry.getValue().isNotExpired()) {
                 return false;
             }
 

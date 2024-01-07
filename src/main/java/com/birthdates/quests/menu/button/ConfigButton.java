@@ -66,9 +66,11 @@ public class ConfigButton implements MenuButton {
         if (section.contains("name")) {
             meta.setDisplayName(section.getString("name"));
         }
+
         if (section.contains("lore")) {
             meta.setLore(section.getStringList("lore"));
         }
+
         if (section.contains("color")) {
             String hex = section.getString("color").replace("#", "");
             Color color = Color.fromRGB(Integer.parseInt(hex, 16));
@@ -80,9 +82,14 @@ public class ConfigButton implements MenuButton {
                 meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
             }
         }
+
         if (section.getBoolean("glow")) {
             meta.addEnchant(org.bukkit.enchantments.Enchantment.DURABILITY, 1, false);
             meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        }
+
+        if (section.contains("model")) {
+            meta.setCustomModelData(section.getInt("model"));
         }
 
         itemStack.setItemMeta(meta);
