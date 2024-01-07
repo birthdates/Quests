@@ -8,7 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.Logger;
 
 /**
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class SQLConnection {
     private final DataSource hikari;
-    private final Executor executor;
+    private final ScheduledThreadPoolExecutor executor;
 
     public SQLConnection(Logger logger, ConfigurationSection config) {
         if (config == null) {
@@ -111,9 +111,9 @@ public class SQLConnection {
     /**
      * Get executor for async queries
      *
-     * @return {@link Executor}
+     * @return {@link ScheduledThreadPoolExecutor}
      */
-    public Executor getExecutor() {
+    public ScheduledThreadPoolExecutor getExecutor() {
         return executor;
     }
 }

@@ -154,7 +154,6 @@ public abstract class QuestDataService implements Listener {
 
     private void saveProgress(UUID userID, Map<String, BigDecimal> questProgress) {
         var progressMap = userQuestProgress.computeIfAbsent(userID, uuid -> new ConcurrentHashMap<>());
-        // FIXME: If database queries are slow, this could be rewritten to use batch updates
         for (Map.Entry<String, BigDecimal> entry : questProgress.entrySet()) {
             Quest quest = questConfig.getQuest(entry.getKey());
             QuestProgress progress = progressMap.computeIfAbsent(entry.getKey(), s -> QuestProgress.NOT_STARTED).add(entry.getValue());

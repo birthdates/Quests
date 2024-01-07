@@ -8,18 +8,49 @@ import com.birthdates.quests.quest.QuestStatus;
 import com.birthdates.quests.sql.SQLConnection;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 public class SQLQuestDataService extends QuestDataService {
 
     private final SQLConnection sql;
+    /**
+     * Used for batching updates and executing them in bulk (see {@link PreparedStatement#addBatch()}
+     */
+    private final AtomicReference<PreparedStatement> batchedStatement = new AtomicReference<>();
 
     public SQLQuestDataService(Logger logger, QuestConfig questConfig, int maxActiveQuests, SQLConnection sql) {
         super(logger, questConfig, maxActiveQuests);
         this.sql = sql;
+        sql.getExecutor().scheduleAtFixedRate(this::executeUpdates, 5, 5, java.util.concurrent.TimeUnit.SECONDS);
+    }
+
+    /**
+     * Execute batch updates on the database
+     */
+    private void executeUpdates() {
+        PreparedStatement statement = batchedStatement.getAndSet(null);
+        if (statement == null) {
+            return;
+        }
+
+        try (statement) {
+            statement.executeBatch();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalStateException("Failed to execute batched updates", e);
+        } finally {
+            try {
+                statement.getConnection().close();
+            } catch (SQLException ignored) {
+
+            }
+        }
     }
 
     @Override
@@ -66,18 +97,21 @@ public class SQLQuestDataService extends QuestDataService {
     protected void saveProgress(UUID playerId, String questId, QuestProgress progress) {
         String statement = "INSERT INTO quest_progress (userId, questId, value, status, expiry) VALUES (?, ?, ?, ?, ?) ON CONFLICT (userId, questId) DO UPDATE SET value = ?, status = ?, expiry = ?";
         sql.getExecutor().execute(() -> {
-            try (var connection = sql.getConnection()) {
-                try (var preparedStatement = connection.prepareStatement(statement)) {
-                    preparedStatement.setObject(1, playerId);
-                    preparedStatement.setString(2, questId);
-                    preparedStatement.setBigDecimal(3, progress.amount());
-                    preparedStatement.setInt(4, progress.status().ordinal());
-                    preparedStatement.setLong(5, progress.expiry());
-                    preparedStatement.setBigDecimal(6, progress.amount());
-                    preparedStatement.setInt(7, progress.status().ordinal());
-                    preparedStatement.setLong(8, progress.expiry());
-                    preparedStatement.execute();
+            try {
+                PreparedStatement preparedStatement = batchedStatement.get();
+                if (preparedStatement == null) {
+                    preparedStatement = sql.getConnection().prepareStatement(statement);
+                    batchedStatement.set(preparedStatement);
                 }
+                preparedStatement.setObject(1, playerId);
+                preparedStatement.setString(2, questId);
+                preparedStatement.setBigDecimal(3, progress.amount());
+                preparedStatement.setInt(4, progress.status().ordinal());
+                preparedStatement.setLong(5, progress.expiry());
+                preparedStatement.setBigDecimal(6, progress.amount());
+                preparedStatement.setInt(7, progress.status().ordinal());
+                preparedStatement.setLong(8, progress.expiry());
+                preparedStatement.addBatch();
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to save quest progress", e);
             }
