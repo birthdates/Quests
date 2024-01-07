@@ -24,6 +24,10 @@ public class SQLQuestConfig implements QuestConfig {
         loadData();
     }
 
+    private static void broadcastQuestUpdate(String id) {
+        QuestPlugin.getInstance().getUpdateListener().sendUpdate("QUEST_CONFIG", id);
+    }
+
     private void loadData() {
         try (var connection = sql.getConnection()) {
             try (var preparedStatement = connection.prepareStatement("SELECT * FROM quests")) {
@@ -52,8 +56,7 @@ public class SQLQuestConfig implements QuestConfig {
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to delete quest", e);
             }
-
-            QuestPlugin.getInstance().getUpdateListener().sendQuestUpdate(id);
+            broadcastQuestUpdate(id);
         });
     }
 
@@ -92,7 +95,7 @@ public class SQLQuestConfig implements QuestConfig {
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to save quest", e);
             }
-            QuestPlugin.getInstance().getUpdateListener().sendQuestUpdate(quest.id());
+            broadcastQuestUpdate(quest.id());
         });
     }
 

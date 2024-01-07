@@ -1,7 +1,8 @@
-package com.birthdates.quests.updates;
+package com.birthdates.quests.update.impl;
 
 import com.birthdates.quests.config.QuestConfig;
 import com.birthdates.quests.lang.LanguageService;
+import com.birthdates.quests.update.UpdateListener;
 import org.bukkit.configuration.ConfigurationSection;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -11,41 +12,34 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 /**
  * Listener for updates to the quest config and language (using Redis pub sub)
  */
-public class UpdateListener {
-    private final JedisPubSub pubSub;
+public class RedisUpdateListener extends UpdateListener {
     private final JedisPool jedisPool;
     private final ConfigurationSection redisConfig;
     private final Jedis jedis;
 
-    public UpdateListener(QuestConfig config, ConfigurationSection redisConfig, LanguageService languageService) {
+    public RedisUpdateListener(QuestConfig config, ConfigurationSection redisConfig, LanguageService languageService) {
+        super(config, languageService);
         if (redisConfig == null) {
             throw new IllegalStateException("Expected redis section in config, not found");
         }
 
         this.redisConfig = redisConfig;
         jedisPool = new JedisPool(redisConfig.getString("Host"), redisConfig.getInt("Port"));
-        this.pubSub = new JedisPubSub() {
+        jedis = getJedis();
+
+        // Setup pub sub listener
+        JedisPubSub pubSub = new JedisPubSub() {
             @Override
             public void onMessage(String channel, String value) {
-                // Message will be formatted as "KEY$VALUE"
                 String[] split = value.split("\\$");
                 String key = split[0];
-                value = split[1];
-
-                // Handle quest or language update
-                if (key.equals("QUEST_CONFIG")) {
-                    config.invalidateCache(value);
-                    config.getQuest(value);
-                    return;
-                }
-                languageService.update(key, value);
+                handleUpdate(key, split[1]);
             }
         };
-
-        jedis = getJedis();
         new Thread(() -> {
-            try {
-                getJedis().subscribe(pubSub, "QUEST_UPDATE");
+            // Different Jedis instance required for subscribing / publishing
+            try (Jedis sub = getJedis()) {
+                sub.subscribe(pubSub, "QUEST_UPDATE");
             } catch (JedisConnectionException ignored) {
                 // Thrown when the connection is closed (e.g. server shutdown)
             }
@@ -64,15 +58,6 @@ public class UpdateListener {
         if (password != null && !password.isBlank()) jedis.auth(password);
         jedis.select(database);
         return jedis;
-    }
-
-    /**
-     * Send a quest update to the redis pub sub
-     *
-     * @param questID The quest ID
-     */
-    public void sendQuestUpdate(String questID) {
-        sendUpdate("QUEST_CONFIG", questID);
     }
 
     /**

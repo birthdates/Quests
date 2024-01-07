@@ -41,7 +41,7 @@ public class QuestMenu extends PaginatedMenu {
     protected void loadButtons(Player player) {
         this.quests = new ArrayList<>(questConfig.getAllQuests());
         this.quests.sort((o1, o2) -> {
-            int type = o1.type().compareTo(o2.type());
+            int type = o1.type().compareTo(o2.type()) * -1;
             if (type == 0) {
                 return dataService.getProgress(player.getUniqueId(), o1.id()).status().compareTo(dataService.getProgress(player.getUniqueId(), o2.id()).status());
             }

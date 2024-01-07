@@ -158,7 +158,7 @@ public abstract class QuestDataService implements Listener {
      *
      * @param player Player to alert
      */
-    private void alertActiveQuests(Player player) {
+    public void alertActiveQuests(Player player) {
         var activeQuests = userQuestProgress.get(player.getUniqueId());
         if (activeQuests == null || activeQuests.values().stream().noneMatch(x -> x.status() == QuestStatus.IN_PROGRESS))
             return;

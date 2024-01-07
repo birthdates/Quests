@@ -72,7 +72,11 @@ public class QuestCommand implements CommandExecutor {
             return false;
         }
 
-        if (args.length >= 1 && player.hasPermission("quests.admin")) {
+        if (args.length >= 1) {
+            if (!player.hasPermission("quests.admin")) {
+                dataService.alertActiveQuests(player);
+                return false;
+            }
             switch (args[0].toLowerCase()) {
                 case "admin":
                     openMenu(player, true);

@@ -15,7 +15,9 @@ import com.birthdates.quests.lang.impl.SQLLanguageService;
 import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.quest.QuestListener;
 import com.birthdates.quests.sql.SQLConnection;
-import com.birthdates.quests.updates.UpdateListener;
+import com.birthdates.quests.update.UpdateListener;
+import com.birthdates.quests.update.impl.MockUpdateListener;
+import com.birthdates.quests.update.impl.RedisUpdateListener;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -81,7 +83,14 @@ public class QuestPlugin extends JavaPlugin {
             languageService = new SQLLanguageService(defaultLang, sqlConnection);
         }
 
-        updateListener = new UpdateListener(questConfig, getConfig().getConfigurationSection("Redis"), languageService);
+
+        // Load update listener
+        if (testEnvironment) {
+            updateListener = new MockUpdateListener(questConfig, languageService);
+        } else {
+            updateListener = new RedisUpdateListener(questConfig, getConfig().getConfigurationSection("Redis"), languageService);
+        }
+
         menuService = new MenuService(this, getConfig("menus.yml"));
 
         // Load data service
