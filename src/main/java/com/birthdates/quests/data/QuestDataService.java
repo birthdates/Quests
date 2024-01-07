@@ -2,6 +2,9 @@ package com.birthdates.quests.data;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.config.QuestConfig;
+import com.birthdates.quests.event.QuestFinishEvent;
+import com.birthdates.quests.event.QuestProgressEvent;
+import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestProgress;
 import com.birthdates.quests.quest.QuestStatus;
@@ -41,14 +44,14 @@ public abstract class QuestDataService implements Listener {
 
     public QuestDataService(Logger logger, QuestConfig questConfig, int maxActiveQuests) {
         this.service = new VerboseExecutor(logger);
-        service.scheduleAtFixedRate(this::saveProgress, 0, 5, java.util.concurrent.TimeUnit.SECONDS);
+        service.scheduleAtFixedRate(this::saveAllProgress, 0, 5, java.util.concurrent.TimeUnit.SECONDS);
         this.questConfig = questConfig;
         this.maxActiveQuests = maxActiveQuests;
         service.scheduleAtFixedRate(this::checkExpiredQuests, 0, 1, TimeUnit.SECONDS);
     }
 
     public void unload() {
-        saveProgress();
+        saveAllProgress();
         service.shutdown();
     }
 
@@ -60,6 +63,7 @@ public abstract class QuestDataService implements Listener {
             if (entry.getValue().isNotExpired()) {
                 return false;
             }
+
             deleteProgress(id, entry.getKey());
             Player player = Bukkit.getPlayer(id);
             if (player != null) {
@@ -80,10 +84,12 @@ public abstract class QuestDataService implements Listener {
         if (quest.permission() != null && !player.hasPermission(quest.permission())) {
             return "No_Quest_Permission";
         }
+
         Map<String, QuestProgress> activeQuests = userQuestProgress.computeIfAbsent(player.getUniqueId(), uuid -> new ConcurrentHashMap<>());
         if (activeQuests.values().stream().filter(QuestProgress::isInProgress).count() >= maxActiveQuests) {
             return "Max_Quests_Active";
         }
+
         long expiry = quest.expiry() < 0 ? -1 : System.currentTimeMillis() + quest.expiry();
         activeQuests.put(quest.id(), new QuestProgress(BigDecimal.ZERO, QuestStatus.IN_PROGRESS, expiry));
         increaseProgress(player.getUniqueId(), quest.id(), BigDecimal.ZERO); // Save to database
@@ -103,15 +109,20 @@ public abstract class QuestDataService implements Listener {
         QuestProgress progress = activeQuests.get(quest.id());
         if (progress == null) return "Quest_Not_Active";
         if (progress.status() == QuestStatus.COMPLETED) return "Quest_Already_Completed";
+
         activeQuests.remove(quest.id());
         if (activeQuests.isEmpty()) {
             userQuestProgress.remove(player.getUniqueId());
         }
+
         deleteProgress(player.getUniqueId(), quest.id());
         return null;
     }
 
-    public void saveProgress() {
+    /**
+     * Save all cached progress
+     */
+    public void saveAllProgress() {
         progressUpdates.forEach(this::saveProgress);
         progressUpdates.clear();
     }
@@ -121,12 +132,15 @@ public abstract class QuestDataService implements Listener {
         if (player == null) {
             return;
         }
+
         for (String rewardCommand : quest.rewardCommands()) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                     rewardCommand.replace("%name%", player.getName()).replace("%id%", playerId.toString()));
         }
 
         QuestPlugin.getInstance().getLanguageService().display(player, "messages.quest.complete");
+        QuestProgress progress = userQuestProgress.get(playerId).get(quest.id());
+        QuestFinishEvent.callEvent(playerId, quest, progress);
     }
 
     /**
@@ -144,10 +158,12 @@ public abstract class QuestDataService implements Listener {
         for (Map.Entry<String, BigDecimal> entry : questProgress.entrySet()) {
             Quest quest = questConfig.getQuest(entry.getKey());
             QuestProgress progress = progressMap.computeIfAbsent(entry.getKey(), s -> QuestProgress.NOT_STARTED).add(entry.getValue());
+
             if (progress.isInProgress() && progress.amount().compareTo(quest.requiredAmount()) >= 0) {
                 progress = progress.status(QuestStatus.COMPLETED);
                 Bukkit.getScheduler().runTask(QuestPlugin.getInstance(), () -> onQuestFinished(userID, quest));
             }
+
             saveProgress(userID, entry.getKey(), progress);
             progressMap.put(entry.getKey(), progress);
         }
@@ -163,7 +179,7 @@ public abstract class QuestDataService implements Listener {
         if (activeQuests == null || activeQuests.values().stream().noneMatch(x -> x.status() == QuestStatus.IN_PROGRESS))
             return;
 
-        var languageService = QuestPlugin.getInstance().getLanguageService();
+        LanguageService languageService = QuestPlugin.getInstance().getLanguageService();
         languageService.display(player, "messages.quest.active-quests");
         activeQuests.forEach((questId, progress) -> {
             Quest quest = questConfig.getQuest(questId);
@@ -201,9 +217,10 @@ public abstract class QuestDataService implements Listener {
                 continue;
             }
             QuestProgress progress = activeQuests.get(questId);
-            if (progress.status() == QuestStatus.IN_PROGRESS) {
-                increaseProgress(playerId, questId, amount);
+            if (progress.status() != QuestStatus.IN_PROGRESS) {
+                continue;
             }
+            increaseProgress(playerId, questId, QuestProgressEvent.callEvent(playerId, quest, progress, amount));
         }
     }
 

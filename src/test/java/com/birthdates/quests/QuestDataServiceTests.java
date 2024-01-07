@@ -89,7 +89,7 @@ public class QuestDataServiceTests {
                 }
             }
 
-            questPlugin.getDataService().saveProgress();
+            questPlugin.getDataService().saveAllProgress();
             server.getScheduler().waitAsyncTasksFinished();
             assertEquals(QuestStatus.COMPLETED,
                     questPlugin.getDataService().getProgress(player.getUniqueId(), "test").status());
