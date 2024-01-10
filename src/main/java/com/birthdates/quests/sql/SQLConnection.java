@@ -89,6 +89,7 @@ public class SQLConnection {
                         	PRIMARY KEY (key, language)
                         )
                         """,
+                // Quest signs table
                 """
                         CREATE TABLE IF NOT EXISTS quest_signs (
                             location VARCHAR(64) PRIMARY KEY,

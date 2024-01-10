@@ -3,6 +3,9 @@ package com.birthdates.quests.util.format;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A formattable string (placeholders).
+ */
 public class FormattableString implements Formattable {
     private final List<StringBuffer> buffers = new ArrayList<>();
 
@@ -10,6 +13,12 @@ public class FormattableString implements Formattable {
         addString(string, 0);
     }
 
+    /**
+     * Insert or add string into buffers
+     *
+     * @param string String to insert
+     * @param index  Index to insert at (0 to add at end)
+     */
     private void addString(String string, int index) {
         String[] lines = string.split("\\\\n");
         for (String line : lines) {
