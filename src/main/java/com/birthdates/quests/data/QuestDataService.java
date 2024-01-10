@@ -183,17 +183,6 @@ public abstract class QuestDataService implements Listener {
     }
 
     /**
-     * Get the index of a quest in a player's active quest list
-     *
-     * @param player Player to check
-     * @param quest  Quest to check
-     * @return Index of quest, or -1 if not found
-     */
-    public int getQuestIndex(Player player, Quest quest) {
-        return getActiveQuests(player).indexOf(quest);
-    }
-
-    /**
      * Alert a user of their active quests
      *
      * @param player Player to alert
