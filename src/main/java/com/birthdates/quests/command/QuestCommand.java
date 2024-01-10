@@ -109,7 +109,7 @@ public class QuestCommand extends BaseCommand {
             return;
         }
 
-        QuestSign sign = new QuestSign(lookingAt.getLocation(), number - 1);
+        QuestSign sign = new QuestSign(lookingAt.getLocation(), Math.max(number - 1, 0));
         if (!signService.addSignLocation(sign)) {
             languageService.display(player, "messages.admin.sign-already-exists");
             return;
