@@ -58,7 +58,7 @@ public record Quest(String id, Material icon, String target, String permission, 
      */
     public void formatButton(Player player, QuestProgress progress, Formattable formattable, boolean useProgressExpiry) {
         String any = QuestPlugin.getInstance().getLanguageService().get("messages.any", player);
-        double percent = progress.amount().divide(requiredAmount, RoundingMode.HALF_EVEN).doubleValue() * 100D;
+        double percent = progress.amount().setScale(2, RoundingMode.CEILING).divide(requiredAmount, RoundingMode.CEILING).doubleValue() * 100D;
         formattable.setPlaceholder("%description%", description.split("\\\\n"))
                 .setPlaceholder("%name%", LocaleUtil.formatID(type.name()))
                 .setPlaceholder("%type%", LocaleUtil.formatID(type.name()))

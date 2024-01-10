@@ -62,7 +62,7 @@ public abstract class QuestDataService implements Listener {
      */
     private void checkExpiredQuests() {
         userQuestProgress.forEach((id, data) -> data.entrySet().removeIf(entry -> {
-            if (!entry.getValue().isInProgress() || entry.getValue().isNotExpired()) {
+            if (entry.getValue().status() != QuestStatus.IN_PROGRESS || entry.getValue().isNotExpired()) {
                 return false;
             }
 
@@ -209,7 +209,7 @@ public abstract class QuestDataService implements Listener {
         activeQuests.forEach((questId, progress) -> {
             Quest quest = questConfig.getQuest(questId);
             if (quest == null || progress.status() != QuestStatus.IN_PROGRESS) return;
-            double percent = progress.amount().divide(quest.requiredAmount(), RoundingMode.HALF_EVEN).doubleValue() * 100.0D;
+            double percent = progress.amount().setScale(2, RoundingMode.CEILING).divide(quest.requiredAmount(), RoundingMode.CEILING).doubleValue() * 100.0D;
             languageService.display(
                     player, "messages.quest.active-quest",
                     quest.description(), LocaleUtil.formatID(quest.type().name()),
