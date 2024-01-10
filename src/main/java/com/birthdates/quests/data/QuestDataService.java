@@ -2,6 +2,7 @@ package com.birthdates.quests.data;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.config.QuestConfig;
+import com.birthdates.quests.event.QuestCancelEvent;
 import com.birthdates.quests.event.QuestDataLoadedEvent;
 import com.birthdates.quests.event.QuestFinishEvent;
 import com.birthdates.quests.event.QuestProgressEvent;
@@ -128,6 +129,7 @@ public abstract class QuestDataService implements Listener {
         }
 
         deleteProgress(player.getUniqueId(), quest.id());
+        QuestCancelEvent.callEvent(player.getUniqueId(), quest, progress);
         return null;
     }
 

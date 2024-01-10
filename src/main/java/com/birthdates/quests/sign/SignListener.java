@@ -2,6 +2,7 @@ package com.birthdates.quests.sign;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.data.QuestDataService;
+import com.birthdates.quests.event.QuestCancelEvent;
 import com.birthdates.quests.event.QuestDataLoadedEvent;
 import com.birthdates.quests.event.QuestProgressEvent;
 import com.birthdates.quests.lang.LanguageService;
@@ -112,6 +113,14 @@ public class SignListener implements Listener {
         if (sign != null) {
             event.setCancelled(true);
             forceUpdate(sign, event.getPlayer()); // This overwrites the block update that would normally happen
+        }
+    }
+
+    @EventHandler
+    public void onQuestCancel(QuestCancelEvent event) {
+        Player player = Bukkit.getPlayer(event.getPlayerId());
+        if (player != null) {
+            forceUpdate(player);
         }
     }
 
