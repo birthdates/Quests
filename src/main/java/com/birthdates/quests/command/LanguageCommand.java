@@ -2,6 +2,7 @@ package com.birthdates.quests.command;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.menu.MenuService;
@@ -20,6 +21,7 @@ public class LanguageCommand extends BaseCommand {
     }
 
     @Default
+    @CommandPermission("quests.admin")
     private void openMenu(Player player) {
         menuService.openMenu(player, new LanguageSelectMenu(menuService, languageService));
     }
