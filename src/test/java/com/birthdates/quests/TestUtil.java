@@ -1,7 +1,6 @@
 package com.birthdates.quests;
 
 public class TestUtil {
-
     public static void waitTick() {
         waitFor(50);
     }
@@ -10,7 +9,7 @@ public class TestUtil {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

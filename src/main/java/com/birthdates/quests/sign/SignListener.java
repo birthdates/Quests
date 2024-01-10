@@ -85,11 +85,14 @@ public class SignListener implements Listener {
             QuestProgress progress = dataService.getProgress(player.getUniqueId(), quest.id());
             quest.formatButton(player, progress, str, true);
         }
+
+        // sendSignChange requires 4 lines
         String[] formatLines = str.getLines();
         String[] lines = new String[4];
         for (int i = 0; i < lines.length; i++) {
             lines[i] = LocaleUtil.color(formatLines.length > i ? formatLines[i] : "");
         }
+
         player.sendSignChange(sign.location(), lines);
     }
 
