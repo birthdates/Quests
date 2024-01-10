@@ -47,6 +47,7 @@ public class QuestCommand extends BaseCommand {
     }
 
     @Subcommand("admin")
+    @CommandPermission("quests.admin")
     private void adminMenu(Player player) {
         openMenu(player, true);
     }
