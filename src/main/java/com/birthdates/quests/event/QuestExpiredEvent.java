@@ -8,11 +8,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class QuestCancelEvent extends QuestEvent {
+public class QuestExpiredEvent extends QuestEvent {
     private static final HandlerList handlers = new HandlerList();
 
-    public QuestCancelEvent(UUID player, Quest quest, QuestProgress questProgress) {
-        super(player, quest, questProgress, false);
+    public QuestExpiredEvent(UUID player, Quest quest, QuestProgress questProgress) {
+        super(player, quest, questProgress, true);
     }
 
     public static HandlerList getHandlerList() {
@@ -20,7 +20,7 @@ public class QuestCancelEvent extends QuestEvent {
     }
 
     public static void callEvent(UUID player, Quest quest, QuestProgress questProgress) {
-        Bukkit.getPluginManager().callEvent(new QuestCancelEvent(player, quest, questProgress));
+        Bukkit.getPluginManager().callEvent(new QuestExpiredEvent(player, quest, questProgress));
     }
 
     @NotNull
@@ -28,5 +28,4 @@ public class QuestCancelEvent extends QuestEvent {
     public HandlerList getHandlers() {
         return handlers;
     }
-
 }

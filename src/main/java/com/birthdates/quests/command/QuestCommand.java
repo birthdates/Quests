@@ -90,6 +90,15 @@ public class QuestCommand extends BaseCommand {
         });
     }
 
+    @Subcommand("alerts")
+    private void questAlerts(Player player) {
+        if (dataService.getActiveQuests(player).isEmpty()) {
+            languageService.display(player, "messages.no-quests-active");
+            return;
+        }
+        dataService.alertActiveQuests(player);
+    }
+
     @Subcommand("sign")
     @CommandPermission("quests.admin")
     private void addQuestSign(Player player, int number) {

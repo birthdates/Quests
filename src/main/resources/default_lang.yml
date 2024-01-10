@@ -89,3 +89,4 @@ en:
   'messages.admin.sign-not-found': '&cYou must be aiming at a sign!'
   'messages.admin.sign-already-exists': '&cA sign already exists here (break it to fix this)!'
   'messages.admin.sign-added': '&aAdded sign!'
+  'messages.no-quests-active': '&cYou have no quests active!'

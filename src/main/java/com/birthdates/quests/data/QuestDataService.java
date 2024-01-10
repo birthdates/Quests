@@ -2,10 +2,7 @@ package com.birthdates.quests.data;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.config.QuestConfig;
-import com.birthdates.quests.event.QuestCancelEvent;
-import com.birthdates.quests.event.QuestDataLoadedEvent;
-import com.birthdates.quests.event.QuestFinishEvent;
-import com.birthdates.quests.event.QuestProgressEvent;
+import com.birthdates.quests.event.*;
 import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestProgress;
@@ -68,6 +65,7 @@ public abstract class QuestDataService implements Listener {
             }
 
             deleteProgress(id, entry.getKey());
+            QuestExpiredEvent.callEvent(id, questConfig.getQuest(entry.getKey()), entry.getValue());
             Player player = Bukkit.getPlayer(id);
             if (player != null) {
                 QuestPlugin.getInstance().getLanguageService().display(player, "messages.quest.expired");
@@ -216,7 +214,7 @@ public abstract class QuestDataService implements Listener {
                     player, "messages.quest.active-quest",
                     quest.description(), LocaleUtil.formatID(quest.type().name()),
                     LocaleUtil.formatNumber(progress.amount()), LocaleUtil.formatNumber(quest.requiredAmount()),
-                    LocaleUtil.createProgressBar(percent)
+                    LocaleUtil.createProgressBar(percent), LocaleUtil.formatExpiry(player, progress.expiry() - System.currentTimeMillis())
             );
         });
     }

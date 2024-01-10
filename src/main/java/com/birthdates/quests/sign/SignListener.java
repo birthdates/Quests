@@ -2,9 +2,7 @@ package com.birthdates.quests.sign;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.data.QuestDataService;
-import com.birthdates.quests.event.QuestCancelEvent;
-import com.birthdates.quests.event.QuestDataLoadedEvent;
-import com.birthdates.quests.event.QuestProgressEvent;
+import com.birthdates.quests.event.*;
 import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestProgress;
@@ -97,16 +95,6 @@ public class SignListener implements Listener {
     }
 
     @EventHandler
-    public void onQuestProgress(QuestProgressEvent event) {
-        Bukkit.getScheduler().runTask(QuestPlugin.getInstance(), () -> {
-            Player player = Bukkit.getPlayer(event.getPlayerId());
-            if (player != null) {
-                forceUpdate(player); // Force update all because order can change
-            }
-        });
-    }
-
-    @EventHandler
     public void onSignInteract(PlayerInteractEvent event) {
         if (!event.hasBlock() || !(event.getClickedBlock().getState() instanceof Sign) || event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
@@ -119,12 +107,30 @@ public class SignListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onQuestCancel(QuestCancelEvent event) {
+    private void handleUpdateEvent(QuestEvent event) {
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(QuestPlugin.getInstance(), () -> handleUpdateEvent(event));
+            return;
+        }
         Player player = Bukkit.getPlayer(event.getPlayerId());
         if (player != null) {
-            forceUpdate(player);
+            forceUpdate(player); // Force update all because order can change
         }
+    }
+
+    @EventHandler
+    public void onQuestProgress(QuestProgressEvent event) {
+        handleUpdateEvent(event);
+    }
+
+    @EventHandler
+    public void onQuestCancel(QuestCancelEvent event) {
+        handleUpdateEvent(event);
+    }
+
+    @EventHandler
+    public void onQuestExpired(QuestExpiredEvent event) {
+        handleUpdateEvent(event);
     }
 
     @EventHandler
