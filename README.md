@@ -1,6 +1,6 @@
 # Quests
 
-A simple quest system for Minecraft (tested on 1.20.4).
+A simple quest system for Minecraft (tested on 1.20.4 Paper).
 
 ## Features
 

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
- * Called when a player progresses within a quest (useful to change amount)
+ * Called when a player progresses (or activate a quest) within a quest (useful to change amount)
  */
 public class QuestProgressEvent extends QuestEvent {
 

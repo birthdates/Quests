@@ -1,5 +1,6 @@
 package com.birthdates.quests;
 
+import co.aikar.commands.PaperCommandManager;
 import com.birthdates.quests.command.LanguageCommand;
 import com.birthdates.quests.command.QuestCommand;
 import com.birthdates.quests.config.QuestConfig;
@@ -121,8 +122,9 @@ public class QuestPlugin extends JavaPlugin {
         SignListener signListener = new SignListener(signService, languageService, dataService);
         Bukkit.getPluginManager().registerEvents(signListener, this);
 
-        getCommand("language").setExecutor(new LanguageCommand(languageService, menuService));
-        getCommand("quest").setExecutor(new QuestCommand(questConfig, languageService, menuService, dataService, signService, signListener));
+        PaperCommandManager commandManager = new PaperCommandManager(this);
+        commandManager.registerCommand(new QuestCommand(questConfig, languageService, menuService, dataService, signService, signListener));
+        commandManager.registerCommand(new LanguageCommand(languageService, menuService));
     }
 
     /**

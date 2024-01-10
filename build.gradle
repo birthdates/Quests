@@ -11,6 +11,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven { url 'https://repo.papermc.io/repository/maven-public/' }
+    maven { url = "https://repo.aikar.co/content/groups/aikar/" }
 }
 
 dependencies {
@@ -20,6 +21,7 @@ dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.20.+'
     implementation 'redis.clients:jedis:5.1.0'
     implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation 'co.aikar:acf-paper:0.5.+'
     implementation 'org.postgresql:postgresql:42.7.1'
 }
 

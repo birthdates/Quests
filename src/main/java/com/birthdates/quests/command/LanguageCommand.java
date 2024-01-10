@@ -1,15 +1,15 @@
 package com.birthdates.quests.command;
 
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
 import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.menu.lang.select.LanguageSelectMenu;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
-public class LanguageCommand implements CommandExecutor {
+@CommandAlias("language|lang")
+public class LanguageCommand extends BaseCommand {
 
     private final LanguageService languageService;
     private final MenuService menuService;
@@ -19,12 +19,8 @@ public class LanguageCommand implements CommandExecutor {
         this.menuService = menuService;
     }
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player) || !player.hasPermission("quests.admin")) {
-            return false;
-        }
+    @Default
+    private void openMenu(Player player) {
         menuService.openMenu(player, new LanguageSelectMenu(menuService, languageService));
-        return false;
     }
 }
