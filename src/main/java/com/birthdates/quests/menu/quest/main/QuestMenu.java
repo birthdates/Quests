@@ -14,6 +14,7 @@ import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestProgress;
 import com.birthdates.quests.quest.QuestStatus;
 import com.birthdates.quests.quest.QuestType;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
@@ -88,8 +89,8 @@ public class QuestMenu extends PaginatedMenu {
     public void onSelect(Quest quest, int slot, Player player, ClickType clickType) {
         if (admin) {
             if (clickType == ClickType.MIDDLE) {
-                questConfig.deleteQuest(quest.id());
-                refresh(player, true);
+                questConfig.deleteQuest(quest.id()).thenRunAsync(() -> refresh(player, true),
+                        Bukkit.getScheduler().getMainThreadExecutor(QuestPlugin.getInstance()));
                 return;
             }
             openAdminMenu(quest, player);

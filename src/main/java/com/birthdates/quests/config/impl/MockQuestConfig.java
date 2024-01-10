@@ -7,6 +7,7 @@ import com.birthdates.quests.quest.QuestType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class MockQuestConfig implements QuestConfig {
     private final Map<String, Quest> memoryCache = new HashMap<>();
@@ -19,8 +20,9 @@ public class MockQuestConfig implements QuestConfig {
     }
 
     @Override
-    public void deleteQuest(String id) {
+    public CompletableFuture<Void> deleteQuest(String id) {
         memoryCache.remove(id);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override

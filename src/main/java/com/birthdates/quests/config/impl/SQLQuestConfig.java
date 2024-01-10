@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SQLQuestConfig implements QuestConfig {
@@ -50,15 +51,15 @@ public class SQLQuestConfig implements QuestConfig {
     }
 
     @Override
-    public void deleteQuest(String id) {
-        sql.getExecutor().submit(() -> {
+    public CompletableFuture<Void> deleteQuest(String id) {
+        return CompletableFuture.runAsync(() -> {
             try (var connection = sql.getConnection()) {
                 connection.createStatement().execute("DELETE FROM quests WHERE id = '" + id + "'");
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to delete quest", e);
             }
             broadcastQuestUpdate(id);
-        });
+        }, sql.getExecutor());
     }
 
     public void invalidateCache(String id) {
