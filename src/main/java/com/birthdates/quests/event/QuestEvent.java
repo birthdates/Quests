@@ -11,7 +11,8 @@ public abstract class QuestEvent extends Event {
     private final Quest quest;
     private final QuestProgress questProgress;
 
-    public QuestEvent(UUID playerId, Quest quest, QuestProgress questProgress) {
+    public QuestEvent(UUID playerId, Quest quest, QuestProgress questProgress, boolean async) {
+        super(async);
         this.playerId = playerId;
         this.quest = quest;
         this.questProgress = questProgress;

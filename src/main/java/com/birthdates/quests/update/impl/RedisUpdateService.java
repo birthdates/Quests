@@ -2,7 +2,9 @@ package com.birthdates.quests.update.impl;
 
 import com.birthdates.quests.config.QuestConfig;
 import com.birthdates.quests.lang.LanguageService;
+import com.birthdates.quests.sign.SignService;
 import com.birthdates.quests.update.UpdateService;
+import com.birthdates.quests.update.UpdateType;
 import org.bukkit.configuration.ConfigurationSection;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -17,8 +19,8 @@ public class RedisUpdateService extends UpdateService {
     private final ConfigurationSection redisConfig;
     private final Jedis jedis;
 
-    public RedisUpdateService(QuestConfig config, ConfigurationSection redisConfig, LanguageService languageService) {
-        super(config, languageService);
+    public RedisUpdateService(QuestConfig config, ConfigurationSection redisConfig, LanguageService languageService, SignService signService) {
+        super(config, languageService, signService);
         if (redisConfig == null) {
             throw new IllegalStateException("Expected redis section in config, not found");
         }
@@ -68,11 +70,11 @@ public class RedisUpdateService extends UpdateService {
     /**
      * Send a specific update to the redis pub sub
      *
-     * @param channel Update type
-     * @param key     Update key (what to update)
+     * @param type Update type
+     * @param key  Update key (what to update)
      */
-    public void sendUpdate(String channel, String key) {
-        jedis.publish("QUEST_UPDATE", channel + "$" + key);
+    public void sendUpdate(UpdateType type, String key) {
+        jedis.publish("QUEST_UPDATE", type.getChannel() + "$" + key);
     }
 
     public void unload() {

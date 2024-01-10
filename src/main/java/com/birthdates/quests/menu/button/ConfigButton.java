@@ -3,6 +3,7 @@ package com.birthdates.quests.menu.button;
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.util.EnumUtil;
 import com.birthdates.quests.util.LocaleUtil;
+import com.birthdates.quests.util.format.Formattable;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -19,7 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class ConfigButton implements MenuButton {
+public class ConfigButton implements MenuButton, Formattable {
     protected final String language;
     private final ItemStack itemStack;
     private final ButtonAction action;
@@ -149,6 +150,11 @@ public class ConfigButton implements MenuButton {
      */
     public ConfigButton setPlaceholder(String placeholder, Collection<String> value) {
         return setPlaceholder(placeholder, value.toArray(new String[0]));
+    }
+
+    @Override
+    public String[] getLines() {
+        throw new UnsupportedOperationException();
     }
 
     /**

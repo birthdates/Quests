@@ -14,6 +14,10 @@ import com.birthdates.quests.lang.impl.MockLanguageService;
 import com.birthdates.quests.lang.impl.SQLLanguageService;
 import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.quest.QuestListener;
+import com.birthdates.quests.sign.SignListener;
+import com.birthdates.quests.sign.SignService;
+import com.birthdates.quests.sign.impl.MockSignService;
+import com.birthdates.quests.sign.impl.SQLSignService;
 import com.birthdates.quests.sql.SQLConnection;
 import com.birthdates.quests.update.UpdateService;
 import com.birthdates.quests.update.impl.MockUpdateService;
@@ -38,6 +42,7 @@ public class QuestPlugin extends JavaPlugin {
     private UpdateService updateService;
     private MenuService menuService;
     private QuestConfig questConfig;
+    private SignService signService;
 
     /**
      * Get the singleton plugin instance
@@ -83,12 +88,18 @@ public class QuestPlugin extends JavaPlugin {
             languageService = new SQLLanguageService(defaultLang, sqlConnection);
         }
 
+        // Load sign service
+        if (testEnvironment) {
+            signService = new MockSignService();
+        } else {
+            signService = new SQLSignService(sqlConnection);
+        }
 
         // Load update listener
         if (testEnvironment) {
-            updateService = new MockUpdateService(questConfig, languageService);
+            updateService = new MockUpdateService(questConfig, languageService, signService);
         } else {
-            updateService = new RedisUpdateService(questConfig, getConfig().getConfigurationSection("Redis"), languageService);
+            updateService = new RedisUpdateService(questConfig, getConfig().getConfigurationSection("Redis"), languageService, signService);
         }
 
         menuService = new MenuService(this, getConfig("menus.yml"));
@@ -107,8 +118,11 @@ public class QuestPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(menuService, this);
         Bukkit.getPluginManager().registerEvents(dataService, this);
 
+        SignListener signListener = new SignListener(signService, languageService, dataService);
+        Bukkit.getPluginManager().registerEvents(signListener, this);
+
         getCommand("language").setExecutor(new LanguageCommand(languageService, menuService));
-        getCommand("quest").setExecutor(new QuestCommand(questConfig, languageService, menuService, dataService));
+        getCommand("quest").setExecutor(new QuestCommand(questConfig, languageService, menuService, dataService, signService, signListener));
     }
 
     /**
@@ -162,5 +176,9 @@ public class QuestPlugin extends JavaPlugin {
 
     public QuestDataService getDataService() {
         return dataService;
+    }
+
+    public SignService getSignService() {
+        return signService;
     }
 }

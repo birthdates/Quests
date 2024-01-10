@@ -3,6 +3,7 @@ package com.birthdates.quests.lang.impl;
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.lang.LanguageService;
 import com.birthdates.quests.sql.SQLConnection;
+import com.birthdates.quests.update.UpdateType;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.Collection;
@@ -94,14 +95,14 @@ public class SQLLanguageService implements LanguageService {
         Map<String, String> languageMap = languageCache.computeIfAbsent(language.toLowerCase(), k -> new HashMap<>());
         languageMap.put(key, value);
         if (broadcast) {
-            QuestPlugin.getInstance().getUpdateService().sendUpdate(language, key);
+            QuestPlugin.getInstance().getUpdateService().sendUpdate(UpdateType.LANGUAGE, key);
         }
     }
 
     @Override
     public void delete(String key, String language) {
         String statement = "DELETE FROM language WHERE key = ? AND language = ?";
-        sql.getExecutor().execute(() -> {
+        sql.getExecutor().submit(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
                     preparedStatement.setString(1, key);

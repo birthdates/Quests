@@ -70,9 +70,10 @@ public class QuestConfigTests {
         player.performCommand("quest admin");
         player.simulateInventoryClick(10);
         player.simulateInventoryClick(21);
-        player.chat(QuestType.values()[1].name());
+        QuestType type = QuestType.values()[0];
+        player.chat(type.name());
         TestUtil.waitTick();
-        assertEquals(QuestType.values()[1], questPlugin.getQuestConfig().getQuest("test").type());
+        assertEquals(type, questPlugin.getQuestConfig().getQuest("test").type());
     }
 
     @Test

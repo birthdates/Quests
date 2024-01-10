@@ -42,8 +42,7 @@ public class SQLQuestDataService extends QuestDataService {
         try (statement) {
             statement.executeBatch();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalStateException("Failed to execute batched updates", e);
+            throw new RuntimeException("Failed to execute batched updates", e);
         } finally {
             try {
                 statement.getConnection().close();
@@ -80,7 +79,7 @@ public class SQLQuestDataService extends QuestDataService {
     @Override
     public void deleteProgress(UUID playerId, String questId) {
         String statement = "DELETE FROM quest_progress WHERE userId = ? AND questId = ?";
-        sql.getExecutor().execute(() -> {
+        sql.getExecutor().submit(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
                     preparedStatement.setObject(1, playerId);
@@ -96,13 +95,14 @@ public class SQLQuestDataService extends QuestDataService {
     @Override
     protected void saveProgress(UUID playerId, String questId, QuestProgress progress) {
         String statement = "INSERT INTO quest_progress (userId, questId, value, status, expiry) VALUES (?, ?, ?, ?, ?) ON CONFLICT (userId, questId) DO UPDATE SET value = ?, status = ?, expiry = ?";
-        sql.getExecutor().execute(() -> {
+        sql.getExecutor().submit(() -> {
             try {
                 PreparedStatement preparedStatement = batchedStatement.get();
                 if (preparedStatement == null) {
                     preparedStatement = sql.getConnection().prepareStatement(statement);
                     batchedStatement.set(preparedStatement);
                 }
+
                 preparedStatement.setObject(1, playerId);
                 preparedStatement.setString(2, questId);
                 preparedStatement.setBigDecimal(3, progress.amount());

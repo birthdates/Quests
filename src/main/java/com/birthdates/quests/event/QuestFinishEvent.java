@@ -12,7 +12,7 @@ public class QuestFinishEvent extends QuestEvent {
     private static final HandlerList handlers = new HandlerList();
 
     public QuestFinishEvent(UUID player, Quest quest, QuestProgress questProgress) {
-        super(player, quest, questProgress);
+        super(player, quest, questProgress, false);
     }
 
     public static HandlerList getHandlerList() {

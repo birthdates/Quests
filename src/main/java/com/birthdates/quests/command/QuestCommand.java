@@ -8,7 +8,12 @@ import com.birthdates.quests.menu.Menu;
 import com.birthdates.quests.menu.MenuService;
 import com.birthdates.quests.menu.quest.main.QuestMenu;
 import com.birthdates.quests.quest.Quest;
+import com.birthdates.quests.sign.QuestSign;
+import com.birthdates.quests.sign.SignListener;
+import com.birthdates.quests.sign.SignService;
 import com.birthdates.quests.util.LocaleUtil;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,17 +23,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class QuestCommand implements CommandExecutor {
-
     private final QuestConfig questConfig;
     private final LanguageService languageService;
     private final MenuService menuService;
     private final QuestDataService dataService;
+    private final SignService signService;
+    private final SignListener signListener;
 
-    public QuestCommand(QuestConfig questConfig, LanguageService languageService, MenuService menuService, QuestDataService dataService) {
+    public QuestCommand(QuestConfig questConfig, LanguageService languageService, MenuService menuService, QuestDataService dataService, SignService signService, SignListener signListener) {
         this.questConfig = questConfig;
         this.languageService = languageService;
         this.menuService = menuService;
         this.dataService = dataService;
+        this.signService = signService;
+        this.signListener = signListener;
     }
 
     private void openMenu(Player player, boolean admin) {
@@ -66,6 +74,23 @@ public class QuestCommand implements CommandExecutor {
         });
     }
 
+    private void addQuestSign(Player player, int number) {
+        Block lookingAt = player.getTargetBlockExact(5);
+        if (lookingAt == null || !(lookingAt.getState() instanceof Sign)) {
+            languageService.display(player, "messages.admin.sign-not-found");
+            return;
+        }
+
+        QuestSign sign = new QuestSign(lookingAt.getLocation(), number - 1);
+        if (!signService.addSignLocation(sign)) {
+            languageService.display(player, "messages.admin.sign-already-exists");
+            return;
+        }
+
+        languageService.display(player, "messages.admin.sign-added");
+        signListener.forceUpdate(sign);
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
@@ -78,6 +103,12 @@ public class QuestCommand implements CommandExecutor {
                 return false;
             }
             switch (args[0].toLowerCase()) {
+                case "sign":
+                    try {
+                        addQuestSign(player, args.length < 2 ? 1 : Integer.parseInt(args[1]));
+                    } catch (NumberFormatException ignored) {
+                    }
+                    return false;
                 case "admin":
                     openMenu(player, true);
                     return false;

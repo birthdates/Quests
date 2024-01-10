@@ -1,5 +1,8 @@
 package com.birthdates.quests.util;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,10 +18,21 @@ public class VerboseExecutor extends ScheduledThreadPoolExecutor {
         this.logger = logger;
     }
 
+    /**
+     * {@link java.util.concurrent.ThreadPoolExecutor#afterExecute(Runnable, Throwable)} is called with no exception always for {@link ScheduledThreadPoolExecutor}
+     *
+     * @param task the task to submit
+     * @return the future
+     */
+    @NotNull
     @Override
-    protected void afterExecute(Runnable r, Throwable t) {
-        if (t != null) {
-            logger.log(Level.SEVERE, "Failed to execute task", t);
-        }
+    public Future<?> submit(@NotNull Runnable task) {
+        return super.submit(() -> {
+            try {
+                task.run();
+            } catch (Exception exception) {
+                logger.log(Level.SEVERE, "Failed to execute task", exception);
+            }
+        });
     }
 }

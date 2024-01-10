@@ -18,7 +18,7 @@ public class QuestProgressEvent extends QuestEvent {
     private BigDecimal amount;
 
     public QuestProgressEvent(UUID playerId, Quest quest, QuestProgress questProgress, BigDecimal amount) {
-        super(playerId, quest, questProgress);
+        super(playerId, quest, questProgress, !Bukkit.isPrimaryThread());
         this.amount = amount;
     }
 

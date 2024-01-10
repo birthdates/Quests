@@ -2,6 +2,7 @@ package com.birthdates.quests.data;
 
 import com.birthdates.quests.QuestPlugin;
 import com.birthdates.quests.config.QuestConfig;
+import com.birthdates.quests.event.QuestDataLoadedEvent;
 import com.birthdates.quests.event.QuestFinishEvent;
 import com.birthdates.quests.event.QuestProgressEvent;
 import com.birthdates.quests.lang.LanguageService;
@@ -20,6 +21,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -96,6 +98,16 @@ public abstract class QuestDataService implements Listener {
         return null;
     }
 
+    public List<Quest> getActiveQuests(Player player) {
+        Map<String, QuestProgress> activeQuests = userQuestProgress.get(player.getUniqueId());
+        if (activeQuests == null) return List.of();
+        return activeQuests.keySet()
+                .stream()
+                .map(questConfig::getQuest)
+                .filter(x -> getProgress(player.getUniqueId(), x.id()).isInProgress())
+                .toList();
+    }
+
     /**
      * Attempt to cancel a quest
      *
@@ -156,7 +168,9 @@ public abstract class QuestDataService implements Listener {
         var progressMap = userQuestProgress.computeIfAbsent(userID, uuid -> new ConcurrentHashMap<>());
         for (Map.Entry<String, BigDecimal> entry : questProgress.entrySet()) {
             Quest quest = questConfig.getQuest(entry.getKey());
-            QuestProgress progress = progressMap.computeIfAbsent(entry.getKey(), s -> QuestProgress.NOT_STARTED).add(entry.getValue());
+            QuestProgress progress = progressMap.computeIfAbsent(entry.getKey(), s -> QuestProgress.NOT_STARTED);
+            BigDecimal amount = QuestProgressEvent.callEvent(userID, quest, progress, entry.getValue());
+            progress = progress.add(amount);
 
             if (progress.isInProgress() && progress.amount().compareTo(quest.requiredAmount()) >= 0) {
                 progress = progress.status(QuestStatus.COMPLETED);
@@ -169,14 +183,26 @@ public abstract class QuestDataService implements Listener {
     }
 
     /**
+     * Get the index of a quest in a player's active quest list
+     *
+     * @param player Player to check
+     * @param quest  Quest to check
+     * @return Index of quest, or -1 if not found
+     */
+    public int getQuestIndex(Player player, Quest quest) {
+        return getActiveQuests(player).indexOf(quest);
+    }
+
+    /**
      * Alert a user of their active quests
      *
      * @param player Player to alert
      */
     public void alertActiveQuests(Player player) {
         var activeQuests = userQuestProgress.get(player.getUniqueId());
-        if (activeQuests == null || activeQuests.values().stream().noneMatch(x -> x.status() == QuestStatus.IN_PROGRESS))
+        if (activeQuests == null || activeQuests.values().stream().noneMatch(x -> x.status() == QuestStatus.IN_PROGRESS)) {
             return;
+        }
 
         LanguageService languageService = QuestPlugin.getInstance().getLanguageService();
         languageService.display(player, "messages.quest.active-quests");
@@ -194,8 +220,14 @@ public abstract class QuestDataService implements Listener {
     }
 
     @EventHandler
+    public void onDataLoaded(QuestDataLoadedEvent event) {
+        alertActiveQuests(event.getPlayer());
+    }
+
+    @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        loadPlayerData(event.getPlayer().getUniqueId()).thenRun(() -> alertActiveQuests(event.getPlayer()));
+        loadPlayerData(event.getPlayer().getUniqueId()).thenRunAsync(() ->
+                QuestDataLoadedEvent.callEvent(event.getPlayer()), Bukkit.getScheduler().getMainThreadExecutor(QuestPlugin.getInstance()));
     }
 
     @EventHandler
@@ -219,7 +251,7 @@ public abstract class QuestDataService implements Listener {
             if (progress.status() != QuestStatus.IN_PROGRESS) {
                 continue;
             }
-            increaseProgress(playerId, questId, QuestProgressEvent.callEvent(playerId, quest, progress, amount));
+            increaseProgress(playerId, questId, amount);
         }
     }
 

@@ -5,6 +5,7 @@ import com.birthdates.quests.config.QuestConfig;
 import com.birthdates.quests.quest.Quest;
 import com.birthdates.quests.quest.QuestType;
 import com.birthdates.quests.sql.SQLConnection;
+import com.birthdates.quests.update.UpdateType;
 import org.bukkit.Material;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ public class SQLQuestConfig implements QuestConfig {
     }
 
     private static void broadcastQuestUpdate(String id) {
-        QuestPlugin.getInstance().getUpdateService().sendUpdate("QUEST_CONFIG", id);
+        QuestPlugin.getInstance().getUpdateService().sendUpdate(UpdateType.QUEST_CONFIG, id);
     }
 
     private void loadData() {
@@ -50,7 +51,7 @@ public class SQLQuestConfig implements QuestConfig {
 
     @Override
     public void deleteQuest(String id) {
-        sql.getExecutor().execute(() -> {
+        sql.getExecutor().submit(() -> {
             try (var connection = sql.getConnection()) {
                 connection.createStatement().execute("DELETE FROM quests WHERE id = '" + id + "'");
             } catch (Exception e) {
@@ -69,7 +70,7 @@ public class SQLQuestConfig implements QuestConfig {
         questCache.put(quest.id(), quest);
         // FIXME: if this becomes too much, it might be better to have individual statements for each field (i.e setQuestDescription)
         String statement = "INSERT INTO quests (id, description, rewards, questType, requiredAmount, permission, icon, target, expiry) VALUES (?, ?, ?, ?, ?, ? ,? ,? , ?) ON CONFLICT (id) DO UPDATE SET description = ?, rewards = ?, questtype = ?, requiredamount = ?, permission = ?, icon = ?, target = ?, expiry = ?";
-        sql.getExecutor().execute(() -> {
+        sql.getExecutor().submit(() -> {
             try (var connection = sql.getConnection()) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
                     Array commands = connection.createArrayOf("text", quest.rewardCommands().toArray());

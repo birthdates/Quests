@@ -11,6 +11,7 @@ A simple quest system for Minecraft (tested on 1.20.4).
 - Quests with expirations
 - API for other plugins to utilize
 - Quests can be edited in-game
+- Quest signs
 
 ## Requirements
 
@@ -45,3 +46,6 @@ To edit the language, utilize `/language` (requires `quests.admin`)
 To edit quests utilize `/quests admin` (requires `quests.admin`)
 
 To view quests utilize `/quests`
+
+To add a sign for quest progress utilize `/quests sign (questNumber)` (requires `quests.admin`, questNumber refers to
+the order of activation)

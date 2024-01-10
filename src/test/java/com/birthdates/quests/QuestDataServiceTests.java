@@ -12,7 +12,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class QuestDataServiceTests {
 
@@ -83,7 +84,7 @@ public class QuestDataServiceTests {
             switch (value) {
                 case BREAK_BLOCKS -> player.simulateBlockBreak(worldMock.getBlockAt(0, 0, 0));
 
-                // Unsupported:
+                // Unsupported in MockBukkit:
                 case DO_DAMAGE, KILL_ENTITY -> {
                     return;
                 }
@@ -101,6 +102,8 @@ public class QuestDataServiceTests {
     public void testAlerts() {
         testActivation();
         server.addPlayer(player);
+        System.out.println("Add player");
+        server.getScheduler().waitAsyncTasksFinished();
         String message = player.nextMessage();
         String expected = questPlugin.getLanguageService().get("messages.quest.active-quests", player.locale().getLanguage());
         assertEquals(LocaleUtil.color(expected), message);

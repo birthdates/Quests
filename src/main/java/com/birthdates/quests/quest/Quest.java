@@ -1,8 +1,8 @@
 package com.birthdates.quests.quest;
 
 import com.birthdates.quests.QuestPlugin;
-import com.birthdates.quests.menu.button.ConfigButton;
 import com.birthdates.quests.util.LocaleUtil;
+import com.birthdates.quests.util.format.Formattable;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -49,17 +49,17 @@ public record Quest(String id, Material icon, String target, String permission, 
     }
 
     /**
-     * Formats the button with the quest information.
+     * Formats the formattable with the quest information.
      *
-     * @param player            The player to format the button for.
+     * @param player            The player to format the formattable for.
      * @param progress          The progress of the quest.
-     * @param button            The button to format.
+     * @param formattable       The formattable to format.
      * @param useProgressExpiry Whether to use the progress expiry or the quest expiry (static or dynamic).
      */
-    public void formatButton(Player player, QuestProgress progress, ConfigButton button, boolean useProgressExpiry) {
+    public void formatButton(Player player, QuestProgress progress, Formattable formattable, boolean useProgressExpiry) {
         String any = QuestPlugin.getInstance().getLanguageService().get("messages.any", player);
         double percent = progress.amount().divide(requiredAmount, RoundingMode.HALF_EVEN).doubleValue() * 100D;
-        button.setPlaceholder("%description%", description.split("\\\\n"))
+        formattable.setPlaceholder("%description%", description.split("\\\\n"))
                 .setPlaceholder("%name%", LocaleUtil.formatID(type.name()))
                 .setPlaceholder("%type%", LocaleUtil.formatID(type.name()))
                 .setPlaceholder("%required%", LocaleUtil.formatNumber(requiredAmount))
