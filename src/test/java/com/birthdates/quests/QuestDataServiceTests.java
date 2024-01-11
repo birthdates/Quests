@@ -102,7 +102,6 @@ public class QuestDataServiceTests {
     public void testAlerts() {
         testActivation();
         server.addPlayer(player);
-        System.out.println("Add player");
         server.getScheduler().waitAsyncTasksFinished();
         String message = player.nextMessage();
         String expected = questPlugin.getLanguageService().get("messages.quest.active-quests", player.locale().getLanguage());
